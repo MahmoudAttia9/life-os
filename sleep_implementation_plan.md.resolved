@@ -1,0 +1,18 @@
+# 🌙 Sleep Tracking — Implementation Plan
+
+## Phase 1 (Current Build)
+1. **Sidebar nav** — Add Sleep button between Fitness and Learning
+2. **HTML** — Full sleep page with hero, stats, log entries, sleep entry modal
+3. **CSS** — Premium Kinetic Aurora sleep-specific styles
+4. **JS** — Sleep data model (localStorage), entry modal, score calculation, rendering
+
+## Files Modified
+- `index.html` — Sidebar nav + sleep page + sleep modal
+- `main.css` — Sleep section CSS 
+- `app.js` — renderPageByName case + renderSleepPage + sleep logic
+
+## Phase 2+ (Future)
+- Chart.js hypnogram
+- Sleep debt waterfall
+- Recommendations engine
+- Achievements

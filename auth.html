@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Life OS - Sign In</title>
+  <meta name="description" content="Sign in to Life OS and manage your daily life system.">
+  <meta name="theme-color" content="#05050f">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="main.css">
+  <style>
+    /* ── Auth Page Overrides ── */
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Decorative grid lines in background */
+    .auth-grid-bg {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,210,80,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,210,80,0.025) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    /* Floating glow orbs */
+    .auth-orb {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(80px);
+      z-index: 0;
+    }
+    .auth-orb-1 {
+      width: 500px; height: 500px;
+      top: -150px; right: -100px;
+      background: radial-gradient(circle, rgba(255,210,80,0.08) 0%, transparent 65%);
+      animation: authOrbFloat 14s ease-in-out infinite;
+    }
+    .auth-orb-2 {
+      width: 400px; height: 400px;
+      bottom: -100px; left: -80px;
+      background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 65%);
+      animation: authOrbFloat 18s ease-in-out infinite reverse;
+    }
+    .auth-orb-3 {
+      width: 300px; height: 300px;
+      top: 50%; left: 55%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(255,140,66,0.05) 0%, transparent 65%);
+      animation: authOrbFloat 22s ease-in-out infinite 4s;
+    }
+
+    @keyframes authOrbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(20px, -15px) scale(1.04); }
+      66%       { transform: translate(-12px, 10px) scale(0.97); }
+    }
+
+    .auth-wrap {
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+      animation: authEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes authEntrance {
+      from { opacity: 0; transform: translateY(32px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Logo ── */
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .auth-logo-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 68px; height: 68px;
+      background: linear-gradient(135deg, #ffd250, #ff8c42);
+      border-radius: 20px;
+      font-size: 30px;
+      margin-bottom: 18px;
+      position: relative;
+      box-shadow: 0 8px 40px rgba(255,210,80,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+      animation: logoGlow 4s ease-in-out infinite;
+    }
+    .auth-logo-mark::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(255,210,80,0.2), rgba(255,140,66,0.1));
+      filter: blur(14px);
+      z-index: -1;
+    }
+
+    @keyframes logoGlow {
+      0%, 100% { box-shadow: 0 8px 40px rgba(255,210,80,0.25), inset 0 1px 0 rgba(255,255,255,0.15); }
+      50%       { box-shadow: 0 12px 56px rgba(255,210,80,0.4), inset 0 1px 0 rgba(255,255,255,0.15); }
+    }
+
+    .auth-logo-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .auth-logo-title span {
+      color: var(--accent-primary);
+      text-shadow: 0 0 28px rgba(255,210,80,0.5);
+    }
+    .auth-logo-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Card ── */
+    .auth-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 36px;
+      box-shadow: 0 24px 72px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04);
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,210,80,0.3), transparent);
+    }
+    .auth-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(255,210,80,0.025) 0%, transparent 40%);
+      pointer-events: none;
+    }
+
+    /* ── Tabs ── */
+    .auth-tabs {
+      display: flex;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      margin-bottom: 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 10px 12px;
+      text-align: center;
+      border-radius: var(--radius-full);
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s var(--ease-spring);
+      color: var(--text-muted);
+      border: none;
+      background: none;
+      font-family: 'Figtree', sans-serif;
+      min-height: 44px;
+      letter-spacing: 0.01em;
+    }
+
+    .auth-tab.active {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+    }
+
+    /* ── Forms ── */
+    .auth-form { display: none; position: relative; z-index: 1; }
+    .auth-form.active { display: block; animation: fadeUp 0.4s var(--ease-spring); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .error-msg {
+      background: var(--danger-bg);
+      border: 1px solid rgba(255, 95, 109, 0.2);
+      color: var(--danger);
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      margin-bottom: 18px;
+      display: none;
+      font-weight: 500;
+    }
+
+    /* ── Avatar Upload ── */
+    .avatar-upload {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .avatar-preview {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffd250, #ff8c42);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      cursor: pointer;
+      border: 2px solid rgba(255,210,80,0.2);
+      overflow: hidden;
+      position: relative;
+      transition: all 0.3s var(--ease-spring);
+      box-shadow: 0 0 32px rgba(255,210,80,0.15);
+    }
+    .avatar-preview:hover {
+      border-color: var(--accent-primary);
+      transform: scale(1.06);
+      box-shadow: 0 0 48px rgba(255,210,80,0.25);
+    }
+    .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+    .avatar-overlay {
+      position: absolute; inset: 0;
+      background: rgba(5, 5, 15, 0.6);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s var(--ease);
+      font-size: 22px;
+      border-radius: 50%;
+    }
+    .avatar-preview:hover .avatar-overlay { opacity: 1; }
+    .avatar-upload-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+    #avatarInput { display: none; }
+
+    /* ── Submit Button ── */
+    .btn-auth {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #ffd250, #ff8c42);
+      color: #0a0a1a;
+      border: none;
+      border-radius: var(--radius-full);
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s var(--ease-spring);
+      font-family: 'Figtree', sans-serif;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 16px;
+      min-height: 54px;
+      box-shadow: 0 6px 28px rgba(255,210,80,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+      letter-spacing: 0.02em;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-auth::after {
+      content: '';
+      position: absolute;
+      top: -50%; left: -150%;
+      width: 70%; height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.55s var(--ease);
+    }
+    .btn-auth:hover::after { left: 160%; }
+    .btn-auth:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 12px 48px rgba(255,210,80,0.4);
+    }
+    .btn-auth:active { transform: translateY(0) scale(0.97); }
+    .btn-auth:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    /* ── Password Toggle ── */
+    .password-wrapper { position: relative; }
+    .password-toggle {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+    .password-toggle:hover { color: var(--accent-primary); }
+    .password-wrapper input { padding-left: 44px; }
+
+    /* ── Divider ── */
+    .auth-divider {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 20px 0;
+      position: relative;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: calc(50% - 28px);
+      height: 1px;
+      background: var(--border);
+    }
+    .auth-divider::before { right: 0; }
+    .auth-divider::after { left: 0; }
+  </style>
+</head>
+<body>
+  <!-- Background elements -->
+  <div class="auth-grid-bg"></div>
+  <div class="auth-orb auth-orb-1"></div>
+  <div class="auth-orb auth-orb-2"></div>
+  <div class="auth-orb auth-orb-3"></div>
+
+  <div class="auth-wrap">
+    <!-- Logo -->
+    <div class="auth-logo">
+      <div class="auth-logo-mark">⚡</div>
+      <div class="auth-logo-title">LIFE <span>OS</span></div>
+      <div class="auth-logo-sub">Your daily life management system</div>
+    </div>
+
+    <!-- Card -->
+    <div class="auth-card">
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab" onclick="switchTab('register')">Create Account</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form class="auth-form active" id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
+        <div class="error-msg" id="loginError" role="alert" aria-live="assertive"></div>
+
+        <div class="input-group">
+          <label class="input-label" for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="example@email.com" autocomplete="email" required>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="loginPassword">Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required>
+            <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')" aria-label="Show or hide password">👁</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-auth" id="loginBtn">
+          <span>Sign In</span>
+        </button>
+      </form>
+
+      <!-- REGISTER FORM -->
+      <form class="auth-form" id="registerForm" onsubmit="event.preventDefault(); handleRegister();">
+        <div class="error-msg" id="registerError" role="alert" aria-live="assertive"></div>
+
+        <div class="avatar-upload">
+          <button type="button" class="avatar-preview"
+            onclick="document.getElementById('avatarInput').click()"
+            aria-label="Choose profile photo">
+            <span id="avatarEmoji">😊</span>
+            <div class="avatar-overlay">📷</div>
+          </button>
+          <span class="avatar-upload-label">Tap to add your photo (optional)</span>
+          <input type="file" id="avatarInput" accept="image/*" onchange="previewAvatar(this)" aria-hidden="true">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="regName">Name</label>
+          <input type="text" id="regName" placeholder="Your full name" autocomplete="name" required>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="regEmail">Email</label>
+          <input type="email" id="regEmail" placeholder="example@email.com" autocomplete="email" required>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="regPassword">Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="regPassword" placeholder="At least 8 characters"
+              autocomplete="new-password" required minlength="8">
+            <button type="button" class="password-toggle"
+              onclick="togglePassword('regPassword')"
+              aria-label="Show or hide password">👁</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-auth" id="registerBtn">
+          <span>Create Account</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL }
+      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+    import { getFirestore, doc, setDoc, serverTimestamp }
+      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBtHvklnxlP7ZgTvwJrpgMz4cbWiuhq9TM",
+      authDomain: "create-project-36d4c.firebaseapp.com",
+      projectId: "create-project-36d4c",
+      storageBucket: "create-project-36d4c.firebasestorage.app",
+      messagingSenderId: "384696044918",
+      appId: "1:384696044918:web:d6e7bb4d2f9eb6fcb1fe57",
+      measurementId: "G-4T116SY5FZ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) window.location.href = 'index.html';
+    });
+
+    let selectedAvatarFile = null;
+
+    window.previewAvatar = (input) => {
+      if (input.files && input.files[0]) {
+        selectedAvatarFile = input.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const preview = document.querySelector('.avatar-preview');
+          preview.innerHTML = `<img src="${e.target.result}" alt="Avatar preview" loading="lazy"><div class="avatar-overlay">📷</div>`;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    };
+
+    window.handleLogin = async () => {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const errEl = document.getElementById('loginError');
+      const btn = document.getElementById('loginBtn');
+
+      errEl.style.display = 'none';
+      if (!email || !password) { showError(errEl, 'Please fill in all fields.'); return; }
+
+      btn.disabled = true;
+      btn.innerHTML = '<div class="loading-spinner" style="width:20px;height:20px;border-color:rgba(10,10,26,0.3);border-top-color:#0a0a1a;"></div><span>Signing in...</span>';
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = 'index.html';
+      } catch (e) {
+        const msgs = {
+          'auth/invalid-credential': 'Incorrect email or password.',
+          'auth/user-not-found': 'This account does not exist.',
+          'auth/wrong-password': 'Incorrect password.',
+          'auth/too-many-requests': 'Too many attempts. Please try again later.'
+        };
+        showError(errEl, msgs[e.code] || 'Something went wrong. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = '<span>Sign In</span>';
+      }
+    };
+
+    window.handleRegister = async () => {
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const errEl = document.getElementById('registerError');
+      const btn = document.getElementById('registerBtn');
+
+      errEl.style.display = 'none';
+      if (!name || !email || !password) { showError(errEl, 'Please fill in all fields.'); return; }
+      if (password.length < 8) { showError(errEl, 'Password must be at least 8 characters.'); return; }
+
+      btn.disabled = true;
+      btn.innerHTML = '<div class="loading-spinner" style="width:20px;height:20px;border-color:rgba(10,10,26,0.3);border-top-color:#0a0a1a;"></div><span>Creating account...</span>';
+
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        let photoURL = '';
+
+        if (selectedAvatarFile) {
+          const storageRef = ref(storage, `avatars/${cred.user.uid}`);
+          await uploadBytes(storageRef, selectedAvatarFile);
+          photoURL = await getDownloadURL(storageRef);
+        }
+
+        await updateProfile(cred.user, { displayName: name, photoURL });
+        await setDoc(doc(db, 'users', cred.user.uid), {
+          name, email, photoURL,
+          createdAt: serverTimestamp(),
+          goals: { worshipTarget: 5, readingPages: 20, fitnessdays: 5 }
+        });
+
+        window.location.href = 'index.html';
+      } catch (e) {
+        const msgs = {
+          'auth/email-already-in-use': 'This email is already registered.',
+          'auth/invalid-email': 'Invalid email format.',
+          'auth/weak-password': 'Password is too weak.'
+        };
+        showError(errEl, msgs[e.code] || 'Something went wrong. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = '<span>Create Account</span>';
+      }
+    };
+
+    function showError(el, msg) {
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    window.togglePassword = (id) => {
+      const input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    };
+
+    window.switchTab = (tab) => {
+      document.querySelectorAll('.auth-tab').forEach((t, i) => {
+        t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+      });
+      document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+      document.getElementById('registerForm').classList.toggle('active', tab === 'register');
+    };
+  </script>
+</body>
+</html>

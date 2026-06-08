@@ -1,0 +1,2902 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Life OS - Productivity System</title>
+  <meta name="description"
+    content="Life OS - Track worship, tasks, reading, podcast listening, fitness, and learning with a clean daily workflow.">
+  <meta name="theme-color" content="#0a0a0f">
+  <link rel="stylesheet" href="main.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  /* ═══════════════════════════════════════════════════════════
+     ELITE DESIGN SYSTEM — RECOVERY LABORATORY
+     ═══════════════════════════════════════════════════════════ */
+  :root {
+    --sleep-primary: #06b6d4;
+    --sleep-secondary: #8b5cf6;
+    --sleep-accent: #22d3ee;
+    --sleep-bg-dark: #020617;
+    --sleep-card: rgba(15, 23, 42, 0.6);
+    --sleep-border: rgba(255, 255, 255, 0.08);
+    --sleep-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+
+    /* Global Variables */
+    --font-main: 'Outfit', sans-serif;
+    --font-heading: 'Syne', sans-serif;
+    --space-xl: clamp(2rem, 5vw, 3rem);
+    --space-lg: clamp(1.5rem, 3vw, 2rem);
+    --space-md: 1rem;
+    --radius-lg: 24px;
+    --radius-md: 12px;
+  }
+
+  /* Sleep Intel Grid */
+  .sleep-intel-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 20px;
+    margin-top: 24px;
+  }
+
+  .sleep-intel-card {
+    background: var(--sleep-card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--sleep-border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--sleep-shadow);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+
+  .sleep-intel-card:hover {
+    border-color: rgba(6, 182, 212, 0.3);
+    transform: translateY(-4px);
+  }
+
+  /* Hero Score */
+  .sleep-score-hero {
+    grid-column: span 12;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+    border: 1px solid rgba(6, 182, 212, 0.2);
+  }
+
+  .sleep-score-circle {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    flex-shrink: 0;
+  }
+
+  .sleep-score-value {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .sleep-score-num {
+    font-size: 48px;
+    font-weight: 800;
+    font-family: var(--font-heading);
+    color: white;
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+  }
+
+  .sleep-score-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--sleep-primary);
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+
+  .sleep-hero-info {
+    flex: 1;4444444444444444444444444444444444444444444444444444444
+  }
+
+  .sleep-hero-status {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--sleep-accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .sleep-hero-title {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    font-family: var(--font-heading);
+    background: linear-gradient(to right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .sleep-hero-summary {
+    font-size: 14px;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    max-width: 600px;
+  }
+
+  /* AI Insight Box */
+  .ai-insight-box {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 16px;
+    border-left: 4px solid var(--sleep-primary);
+  }
+
+  .ai-insight-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ai-insight-text {
+    font-size: 13px;
+    color: #cbd5e1;
+    line-height: 1.5;
+  }
+
+  /* Stats Row */
+  .sleep-stats-row {
+    grid-column: span 12;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+  }
+
+  .sleep-mini-stat {
+    background: var(--sleep-card);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--sleep-border);
+    text-align: center;
+    transition: background 0.3s ease;
+  }
+
+  .sleep-mini-stat:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .sleep-mini-stat-val {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    font-family: var(--font-heading);
+  }
+
+  .sleep-mini-stat-label {
+    font-size: 10px;
+    color: #64748b;
+    font-weight: 600;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Charts */
+  .sleep-chart-main {
+    grid-column: span 8;
+    height: 350px;
+  }
+
+  .sleep-stages-card {
+    grid-column: span 4;
+    height: 350px;
+  }
+
+  .sleep-caffeine-intel {
+    grid-column: span 4;
+  }
+
+  .sleep-hydration-intel {
+    grid-column: span 4;
+  }
+
+  .sleep-factors-intel {
+    grid-column: span 4;
+  }
+
+  /* Tags */
+  .factor-tag-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 15px;
+  }
+
+  .factor-tag {
+    padding: 6px 12px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .factor-tag.positive {
+    border-color: #10b981;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+  }
+
+  .factor-tag.negative {
+    border-color: #ef4444;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+  }
+
+  /* Modal & Tabs */
+  .sleep-modal {
+    background: #020617 !important;
+    border: 1px solid rgba(6, 182, 212, 0.2) !important;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8) !important;
+  }
+
+  .sleep-modal-tabs {
+    display: flex;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 4px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+  }
+
+  .sleep-tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #64748b;
+    padding: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .sleep-tab-btn.active {
+    background: var(--sleep-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+  }
+
+  .sleep-tab-content {
+    display: none;
+  }
+
+  .sleep-tab-content.active {
+    display: block;
+    animation: slideUp 0.4s ease;
+  }
+
+  /* Luxury Inputs */
+  .luxury-input-group {
+    margin-bottom: 20px;
+  }
+
+  .luxury-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .luxury-input,
+  .luxury-select {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px !important;
+    padding: 12px 16px !important;
+    color: white !important;
+    font-size: 14px !important;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .luxury-input:focus {
+    border-color: var(--sleep-primary) !important;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
+  }
+
+  .input-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsive */
+  @media (max-width: 1000px) {
+
+    .sleep-chart-main,
+    .sleep-stages-card {
+      grid-column: span 12;
+    }
+
+    .sleep-stats-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+
+    .sleep-caffeine-intel,
+    .sleep-hydration-intel,
+    .sleep-factors-intel {
+      grid-column: span 12;
+    }
+
+    .sleep-score-hero {
+      flex-direction: column;
+      text-align: center;
+      padding: 40px 20px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+  <!-- Auth / Loading Overlay -->
+  <div id="authOverlay"
+    style="position:fixed;inset:0;background:var(--bg-base);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:var(--space-md);">
+    <div class="loading-spinner" style="width:36px;height:36px;border-width:3px;"></div>
+    <span style="color:var(--text-secondary);font-size:14px;">Loading...</span>
+  </div>
+
+  <!-- Toast -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Mobile Toggle -->
+  <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Open menu">☰</button>
+
+  <div class="app-layout">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">⚡</div>
+        <div class="logo-text">Life<span>OS</span></div>
+      </div>
+
+      <div class="nav-section-label">Sections</div>
+      <button class="nav-item active" onclick="switchPage('dashboard', this)" aria-label="Dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </button>
+      <button class="nav-item worship" onclick="switchPage('worship', this)" aria-label="Worship">
+        <span class="nav-icon">🕌</span> العبادة
+      </button>
+      <button class="nav-item work" onclick="switchPage('work', this)" aria-label="Work">
+        <span class="nav-icon">💼</span> Work
+      </button>
+      <button class="nav-item reading" onclick="switchPage('reading', this)" aria-label="Reading">
+        <span class="nav-icon">📚</span> Reading
+      </button>
+      <button class="nav-item fitness" onclick="switchPage('fitness', this)" aria-label="Fitness">
+        <span class="nav-icon">🏋️</span> Fitness
+      </button>
+      <button class="nav-item sleep" onclick="switchPage('sleep', this)" aria-label="Sleep">
+        <span class="nav-icon">🌙</span> Sleep
+      </button>
+      <button class="nav-item learning" onclick="switchPage('learning', this)" aria-label="Learning">
+        <span class="nav-icon">🧠</span> Learning
+      </button>
+      <button class="nav-item podcast" onclick="switchPage('podcast', this)" aria-label="Podcast">
+        <span class="nav-icon">🎧</span> Podcast
+      </button>
+      <button class="nav-item" onclick="switchPage('stats', this)" aria-label="Analytics">
+        <span class="nav-icon">📈</span> Analytics
+      </button>
+      <button class="nav-item" onclick="switchPage('weeklyGoals', this)" aria-label="Goals">
+        <span class="nav-icon">🎯</span> Goals
+      </button>
+      <button class="nav-item" onclick="switchPage('notes', this)" aria-label="Notes">
+        <span class="nav-icon">📝</span> Notes
+      </button>
+
+      <div class="sidebar-bottom">
+        <div class="user-card" onclick="openProfileModal()">
+          <div class="user-avatar" id="sidebarAvatar">U</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebarName">User</div>
+            <div class="user-status">Profile</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="main-content">
+
+      <section class="day-navigator card" aria-label="Day navigation">
+        <button id="prevDayBtn" type="button" class="btn btn-ghost btn-sm" onclick="goToPrevDay()"
+          aria-label="Previous day">← Previous</button>
+        <div class="day-navigator-center">
+          <div class="day-navigator-name" id="activeDayName">-</div>
+          <div class="day-navigator-date" id="activeDayDate">-</div>
+          <div class="day-navigator-hint" id="activeDayHint">Today</div>
+        </div>
+        <div class="day-navigator-actions">
+          <button id="todayBtn" type="button" class="btn btn-ghost btn-sm" onclick="goToToday()">Today</button>
+          <button id="nextDayBtn" type="button" class="btn btn-ghost btn-sm" onclick="goToNextDay()"
+            aria-label="Next day">Next →</button>
+        </div>
+        <button type="button" class="top-profile-spot" id="topProfileSpot" onclick="openProfileModal()"
+          aria-label="Open profile settings">
+          <span class="top-profile-avatar" id="topProfileAvatar">U</span>
+          <span class="top-profile-copy">
+            <span class="top-profile-kicker">Your Photo</span>
+            <span class="top-profile-name" id="topProfileName">User</span>
+          </span>
+          <span class="top-profile-edit">Edit</span>
+        </button>
+      </section>
+
+      <!-- ══════════ DASHBOARD ══════════ -->
+      <div id="page-dashboard" class="page active">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Welcome, <span id="dashName">User</span> 👋</div>
+            <div class="page-subtitle" id="dashDate"></div>
+          </div>
+          <div class="page-header-right">
+            <div class="streak-badge">🔥 <span id="streakCount">0</span> day streak</div>
+            <div class="date-badge" id="dashDateBadge"></div>
+            <div class="dash-header-avatar" id="dashHeaderAvatar">U</div>
+          </div>
+        </div>
+
+        <!-- Score Hero -->
+        <div class="score-hero">
+          <div class="score-ring-wrap">
+            <div class="ring-container">
+              <svg width="120" height="120">
+                <circle class="ring-track" cx="60" cy="60" r="50" stroke-width="8"></circle>
+                <circle class="ring-fill" id="scoreRing" cx="60" cy="60" r="50" stroke-width="8"
+                  stroke="var(--accent-primary)" stroke-dasharray="314" stroke-dashoffset="314"></circle>
+              </svg>
+              <div class="ring-label">
+                <span class="ring-percent" id="scorePercent">0%</span>
+                <span class="ring-sub">Today</span>
+              </div>
+            </div>
+          </div>
+          <div class="score-info">
+            <div class="score-greeting">Current day</div>
+            <div class="score-title" id="scoreTitle">Start your day 🌅</div>
+            <div class="score-desc" id="scoreDesc">Small steps create big momentum</div>
+          </div>
+        </div>
+
+        <!-- Section Rings -->
+        <div class="section-rings">
+          <div class="section-ring-card worship"
+            onclick="switchPage('worship', document.querySelector('.nav-item.worship'))">
+            <div class="ring-container">
+              <svg width="56" height="56">
+                <circle class="ring-track" cx="28" cy="28" r="24" stroke-width="5"></circle>
+                <circle class="ring-fill" id="worshipRing" cx="28" cy="28" r="24" stroke-width="5"
+                  stroke="var(--worship)" stroke-dasharray="150" stroke-dashoffset="150"></circle>
+              </svg>
+              <div class="ring-label"><span class="ring-percent" id="worshipPct" style="font-size:13px;">0%</span></div>
+            </div>
+            <div class="section-ring-info">
+              <div class="section-ring-name">العبادة</div>
+              <div class="section-ring-value" id="worshipVal">0/5</div>
+            </div>
+          </div>
+          <div class="section-ring-card work" onclick="switchPage('work', document.querySelector('.nav-item.work'))">
+            <div class="ring-container">
+              <svg width="56" height="56">
+                <circle class="ring-track" cx="28" cy="28" r="24" stroke-width="5"></circle>
+                <circle class="ring-fill" id="workRing" cx="28" cy="28" r="24" stroke-width="5" stroke="var(--work)"
+                  stroke-dasharray="150" stroke-dashoffset="150"></circle>
+              </svg>
+              <div class="ring-label"><span class="ring-percent" id="workPct" style="font-size:13px;">0%</span></div>
+            </div>
+            <div class="section-ring-info">
+              <div class="section-ring-name">Work</div>
+              <div class="section-ring-value" id="workVal">0 tasks</div>
+            </div>
+          </div>
+          <div class="section-ring-card reading"
+            onclick="switchPage('reading', document.querySelector('.nav-item.reading'))">
+            <div class="ring-container">
+              <svg width="56" height="56">
+                <circle class="ring-track" cx="28" cy="28" r="24" stroke-width="5"></circle>
+                <circle class="ring-fill" id="readingRing" cx="28" cy="28" r="24" stroke-width="5"
+                  stroke="var(--reading)" stroke-dasharray="150" stroke-dashoffset="150"></circle>
+              </svg>
+              <div class="ring-label"><span class="ring-percent" id="readingPct" style="font-size:13px;">0%</span></div>
+            </div>
+            <div class="section-ring-info">
+              <div class="section-ring-name">Reading</div>
+              <div class="section-ring-value" id="readingVal">0 pages</div>
+            </div>
+          </div>
+          <div class="section-ring-card fitness"
+            onclick="switchPage('fitness', document.querySelector('.nav-item.fitness'))">
+            <div class="ring-container">
+              <svg width="56" height="56">
+                <circle class="ring-track" cx="28" cy="28" r="24" stroke-width="5"></circle>
+                <circle class="ring-fill" id="fitnessRing" cx="28" cy="28" r="24" stroke-width="5"
+                  stroke="var(--fitness)" stroke-dasharray="150" stroke-dashoffset="150"></circle>
+              </svg>
+              <div class="ring-label"><span class="ring-percent" id="fitnessPct" style="font-size:13px;">0%</span></div>
+            </div>
+            <div class="section-ring-info">
+              <div class="section-ring-name">Fitness</div>
+              <div class="section-ring-value" id="fitnessVal">Not logged yet</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Today Grid -->
+        <div class="today-grid">
+          <!-- Prayers Quick -->
+          <div class="card">
+            <div class="section-header">
+              <div class="card-title">🕌 Prayers</div>
+            </div>
+            <div class="prayers-grid" id="dashPrayers"></div>
+          </div>
+          <!-- Tasks Quick -->
+          <div class="card">
+            <div class="section-header">
+              <div class="card-title">✅ Tasks</div>
+            </div>
+            <div class="progress-track" style="margin-bottom:var(--space-md);">
+              <div class="progress-fill" id="dashTasksProgress" style="background:var(--work);width:0%;"></div>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:var(--space-md);"
+              id="dashTasksProgressText">0 / 0</div>
+            <div id="dashTasks"></div>
+          </div>
+        </div>
+
+        <!-- Unified Agenda -->
+        <div class="card section today-agenda-section">
+          <div class="section-header">
+            <div class="card-title">📋 Master List For Your Day</div>
+            <span class="badge today-agenda-badge" id="todayAgendaProgressBadge">0% done</span>
+          </div>
+          <div class="today-agenda-summary" id="todayAgendaSummary">Collecting your day tasks...</div>
+          <div class="today-agenda-list" id="todayAgendaList"></div>
+        </div>
+
+        <!-- Learning Quick -->
+        <div class="card section">
+          <div class="card-title">🧠 Learning Today</div>
+          <div id="dashLearningToday"></div>
+        </div>
+
+        <!-- Podcast Quick -->
+        <div class="card section">
+          <div class="card-title">🎧 Podcast Today</div>
+          <div id="dashPodcastToday"></div>
+        </div>
+
+        <!-- Heatmap -->
+        <div class="card heatmap-section">
+          <div class="section-header">
+            <div class="card-title">📊 Daily Activity (Last 28 Days)</div>
+          </div>
+          <div id="dashHeatmapLoading" style="display:none;">
+            <div class="loading-spinner" style="margin:0 auto;"></div>
+          </div>
+          <div class="heatmap" id="dashHeatmap"></div>
+          <div class="heatmap-meta">
+            <div class="heatmap-summary" id="dashHeatmapSummary">Tracking activity...</div>
+            <div class="heatmap-legend-inline" aria-hidden="true">
+              <span>Low</span>
+              <span class="heatmap-legend-dot" data-level="0"></span>
+              <span class="heatmap-legend-dot" data-level="1"></span>
+              <span class="heatmap-legend-dot" data-level="2"></span>
+              <span class="heatmap-legend-dot" data-level="3"></span>
+              <span class="heatmap-legend-dot" data-level="4"></span>
+              <span>High</span>
+            </div>
+          </div>
+          <div class="heatmap-note">Each square represents one day. Tap a square to view details.</div>
+        </div>
+      </div>
+
+      <!-- ══════════ WORSHIP ══════════ -->
+      <div id="page-worship" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">🕌 العبادة</div>
+            <div class="page-subtitle">تابع صلاتك ووردك اليومي وروحانياتك</div>
+          </div>
+          <div class="page-header-right">
+            <div class="date-badge" id="worshipDateBadge"></div>
+          </div>
+        </div>
+
+        <div class="section worship-hero">
+          <div class="worship-hero-main">
+            <div class="worship-hero-copy">
+              <div class="worship-hero-kicker">نور يومك</div>
+              <div class="worship-hero-dua">اللهم أعنّي على ذكرك وشكرك وحسن عبادتك</div>
+              <div class="worship-hero-status" id="worshipHeroStatus">ابدأ بخطوة بسيطة والبركة تكمل معاك.</div>
+            </div>
+            <div class="worship-score-orb">
+              <div class="worship-score-value" id="worshipHeroScore">0%</div>
+              <div class="worship-score-label">صفاء اليوم</div>
+            </div>
+          </div>
+          <div class="worship-kpi-grid">
+            <div class="worship-kpi-card">
+              <div class="worship-kpi-label">الفرائض</div>
+              <div class="worship-kpi-value" id="worshipKpiPrayers">0/5</div>
+              <div class="worship-kpi-note">الصلوات المكتملة</div>
+            </div>
+            <div class="worship-kpi-card">
+              <div class="worship-kpi-label">المسجد</div>
+              <div class="worship-kpi-value" id="worshipKpiMosque">0</div>
+              <div class="worship-kpi-note">صلاة في المسجد</div>
+            </div>
+            <div class="worship-kpi-card">
+              <div class="worship-kpi-label">الأذكار</div>
+              <div class="worship-kpi-value" id="worshipKpiAzkar">0/2</div>
+              <div class="worship-kpi-note">صباح ومساء</div>
+            </div>
+            <div class="worship-kpi-card">
+              <div class="worship-kpi-label">القرآن</div>
+              <div class="worship-kpi-value" id="worshipKpiQuran">0 ص</div>
+              <div class="worship-kpi-note">ورد اليوم</div>
+            </div>
+            <div class="worship-kpi-card">
+              <div class="worship-kpi-label">القيام</div>
+              <div class="worship-kpi-value" id="worshipKpiQiyam">0</div>
+              <div class="worship-kpi-note">ركعات الليلة</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prayers -->
+        <div class="section worship-panel">
+          <div class="section-header">
+            <div class="section-title">الصلوات اليومية</div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font-size:13px;color:var(--text-muted);" id="prayersPlaceStats"></span>
+              <span class="badge badge-worship" id="prayersDoneCount">0 / 5</span>
+            </div>
+          </div>
+          <div id="prayersList"></div>
+        </div>
+
+        <!-- Sunnah -->
+        <div class="section worship-panel">
+          <div class="section-header">
+            <div class="section-title">السنن الرواتب</div>
+            <span class="badge badge-worship" id="sunnahDoneCount">0 / 8</span>
+          </div>
+          <div id="sunnahList" class="worship-check-grid"></div>
+        </div>
+
+        <!-- Azkar -->
+        <div class="section worship-panel">
+          <div class="section-title">الأذكار</div>
+          <div id="azkarList" class="worship-check-grid"></div>
+        </div>
+
+        <!-- Quran -->
+        <div class="section worship-panel worship-quran-field">
+          <div class="section-header">
+            <div class="section-title">📖 وِرد القرآن</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:12px;color:var(--text-muted);" id="quranGoalHint"></span>
+              <span class="badge badge-worship" id="quranGoalValue"></span>
+            </div>
+          </div>
+          <div class="input-group">
+            <input type="number" id="quranPages" placeholder="قرأت كام صفحة النهاردة؟" min="0"
+              aria-label="عدد صفحات القرآن" oninput="saveQuranPages(this.value)">
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="quranGoalProgress" style="background:var(--worship);width:0%;"></div>
+          </div>
+          <div class="worship-quran-meta">
+            <span id="quranProgressPercent">0%</span>
+            <span id="quranProgressRemaining">ابدأ الآن</span>
+          </div>
+        </div>
+
+        <!-- Qiyam -->
+        <div class="section worship-panel worship-qiyam-field">
+          <div class="section-title">🌙 قيام الليل</div>
+          <label class="checkbox-item worship-check-item">
+            <input type="checkbox" id="qiyamDone" onchange="toggleQiyam(this.checked)">
+            <div class="checkbox-box"></div>
+            <span class="checkbox-label">صليت قيام الليل</span>
+          </label>
+          <div class="qiyam-quick-actions" id="qiyamQuickActions">
+            <button type="button" class="qiyam-chip" data-rakaat="2" onclick="setQiyamRakaatQuick(2)">٢ ركعة</button>
+            <button type="button" class="qiyam-chip" data-rakaat="4" onclick="setQiyamRakaatQuick(4)">٤ ركعات</button>
+            <button type="button" class="qiyam-chip" data-rakaat="8" onclick="setQiyamRakaatQuick(8)">٨ ركعات</button>
+            <button type="button" class="qiyam-chip" data-rakaat="12" onclick="setQiyamRakaatQuick(12)">١٢ ركعة</button>
+          </div>
+          <div class="input-group" style="margin-top:8px;">
+            <input type="number" id="qiyamRakaat" placeholder="عدد الركعات" min="0" aria-label="عدد ركعات قيام الليل"
+              oninput="saveQiyamRakaat(this.value)" disabled>
+          </div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:4px;" id="qiyamSummary"></div>
+        </div>
+      </div>
+
+      <!-- ══════════ WORK ══════════ -->
+      <div id="page-work" class="page">
+        <!-- New Aurora Header -->
+
+        <div class="page-header">
+          <div>
+            <div class="page-title kinetic-text">WORK STATION</div>
+            <div class="page-subtitle">Master your productivity in deep space</div>
+          </div>
+          <div class="header-actions">
+            <div class="search-box">
+              <span class="icon">🔍</span>
+              <input type="text" id="workSearch" placeholder="Search tasks..." oninput="filterWorkTasks()">
+            </div>
+            <button class="btn btn-primary aurora-glow" onclick="openAddTask()">
+              <span class="icon">+</span> NEW TASK
+            </button>
+          </div>
+        </div>
+
+        <!-- Work Dashboard Stats -->
+        <div class="work-stats-grid section">
+          <div class="kpi-card aurora-border">
+            <div class="kpi-label">COMPLETION</div>
+            <div class="kpi-value" id="workTasksProgressText">0/0</div>
+            <div class="kpi-progress-bar">
+              <div class="kpi-progress-fill" id="workTasksProgress"></div>
+            </div>
+          </div>
+          <div class="kpi-card aurora-border">
+            <div class="kpi-label">POMODOROS</div>
+            <div class="kpi-value" id="pomodoroCount">0</div>
+            <div class="kpi-sub">Today's Focus</div>
+          </div>
+          <div class="kpi-card aurora-border">
+            <div class="kpi-label">FOCUS TIME</div>
+            <div class="kpi-value"><span id="focusMinutes">0</span><small>m</small></div>
+            <div class="kpi-sub">Productive Hours</div>
+          </div>
+          <div class="kpi-card aurora-border">
+            <div class="kpi-label">EFFICIENCY</div>
+            <div class="kpi-value" id="workEfficiency">0%</div>
+            <div class="kpi-sub">Task Ratio</div>
+          </div>
+        </div>
+
+        <div class="work-layout-grid">
+          <!-- Main Task Area -->
+          <div class="task-area">
+            <div class="card work-card main-tasks">
+              <div class="card-header">
+                <div class="tabs-minimal">
+                  <button class="tab-btn active" data-work-nav-btn="tasks" onclick="setWorkTab('tasks')">Tasks</button>
+                  <button class="tab-btn" data-work-nav-btn="projects"
+                    onclick="setWorkTab('projects')">Projects</button>
+                  <button class="tab-btn" data-work-nav-btn="stats" onclick="setWorkTab('stats')">Analytics</button>
+                </div>
+                <div class="filter-controls">
+                  <select id="taskSort" class="minimal-select" onchange="renderWorkPage()">
+                    <option value="priority">Priority</option>
+                    <option value="name">Alpha</option>
+                    <option value="newest">Newest</option>
+                  </select>
+                  <button class="btn btn-icon" title="Clear Completed" onclick="clearCompletedTasks()">🧹</button>
+                </div>
+              </div>
+
+              <div id="tasksList" class="task-list-container">
+                <!-- Dynamic Content -->
+              </div>
+
+              <div id="projectsList" class="project-list-container" hidden></div>
+              <div id="workStatsContent" class="stats-container" hidden></div>
+            </div>
+          </div>
+
+          <!-- Side Panel: Pomodoro & Focus -->
+          <div class="side-panel">
+            <div class="card pomodoro-card aurora-glow-alt">
+              <div class="card-title">POMODORO FOCUS</div>
+
+              <div class="timer-wrapper">
+                <svg class="timer-svg" viewBox="0 0 100 100">
+                  <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
+                  <circle class="timer-progress" id="timerProgressCircle" cx="50" cy="50" r="45"></circle>
+                </svg>
+                <div class="timer-content">
+                  <div id="timerDisplay">25:00</div>
+                  <div id="timerStatus" class="timer-mode">FOCUS</div>
+                </div>
+              </div>
+
+              <div class="timer-controls">
+                <button class="btn btn-primary" id="timerBtn" onclick="toggleTimer()">▶ START</button>
+                <button class="btn btn-ghost" onclick="resetTimer()">↺ RESET</button>
+              </div>
+
+              <div class="category-selector">
+                <button class="cat-chip active" data-category-btn="work" onclick="setStudyCategory('work')">💼
+                  Work</button>
+                <button class="cat-chip" data-category-btn="course" onclick="setStudyCategory('course')">📚
+                  Course</button>
+                <button class="cat-chip" data-category-btn="programming" onclick="setStudyCategory('programming')">💻
+                  Code</button>
+                <button class="cat-chip" data-category-btn="college" onclick="setStudyCategory('college')">🎓
+                  Study</button>
+              </div>
+
+              <div class="active-task-display aurora-border" id="activePomodoroTask">
+                No task selected for focus
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══════════ READING ══════════ -->
+      <div id="page-reading" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📚 Reading</div>
+            <div class="page-subtitle">Track your daily reading and library</div>
+          </div>
+        </div>
+
+        <!-- Reading Overview -->
+        <div class="card section reading-overview-card">
+          <div class="section-header reading-overview-header">
+            <div>
+              <div class="card-title">📖 Daily Reading Progress</div>
+              <div class="reading-overview-note">Clear daily target with monthly momentum.</div>
+            </div>
+            <span class="badge badge-reading reading-status-progress" id="readingStatusBadge">In Progress</span>
+          </div>
+
+          <div class="reading-kpi-grid">
+            <div class="reading-kpi">
+              <div class="reading-kpi-label">Today</div>
+              <div class="reading-kpi-value is-reading" id="todayPagesVal">0</div>
+              <div class="reading-kpi-sub">Pages read</div>
+            </div>
+            <div class="reading-kpi">
+              <div class="reading-kpi-label">Goal</div>
+              <div class="reading-kpi-value" id="readingGoalVal">20</div>
+              <div class="reading-kpi-sub">Pages target</div>
+            </div>
+            <div class="reading-kpi" id="readingBalanceCard">
+              <div class="reading-kpi-label" id="readingBalanceLabel">Remaining</div>
+              <div class="reading-kpi-value" id="readingRemainingVal">20</div>
+              <div class="reading-kpi-sub" id="readingBalanceSub">Pages left</div>
+            </div>
+            <div class="reading-kpi">
+              <div class="reading-kpi-label">Last 30 Days</div>
+              <div class="reading-kpi-value is-accent" id="monthPagesVal">0</div>
+              <div class="reading-kpi-sub"><span id="readingMonthAvgVal">0</span> avg/day</div>
+            </div>
+          </div>
+
+          <div class="progress-track">
+            <div class="progress-fill" id="readingProgressBar" style="background:var(--reading);width:0%;"></div>
+          </div>
+          <div class="reading-progress-meta" id="readingProgressMeta">Start with a few pages to build momentum.</div>
+
+          <div class="reading-actions-grid">
+            <div class="reading-input-block">
+              <label class="input-label" for="readingGoalInput">Daily goal</label>
+              <div class="reading-inline-controls">
+                <input type="number" id="readingGoalInput" placeholder="Daily goal" min="1"
+                  aria-label="Daily reading goal">
+                <button class="btn btn-ghost btn-sm" onclick="saveReadingGoal()">Save Goal</button>
+              </div>
+            </div>
+            <div class="reading-input-block">
+              <label class="input-label" for="readingQuickPagesInput">Quick log pages</label>
+              <div class="reading-inline-controls">
+                <input type="number" id="readingQuickPagesInput" placeholder="Pages" min="1"
+                  aria-label="Quick reading pages" onkeydown="if(event.key === 'Enter'){ logReadingPages(); }">
+                <button class="btn btn-primary btn-sm" onclick="logReadingPages()">Log</button>
+              </div>
+              <div class="reading-inline-hint">Use this for articles or reading outside your active book.</div>
+            </div>
+            <div class="reading-input-block">
+              <label class="input-label" for="readingSetPagesInput">Today total control</label>
+              <div class="reading-inline-controls">
+                <input type="number" id="readingSetPagesInput" placeholder="Set total pages" min="0"
+                  aria-label="Set total pages read today" onkeydown="if(event.key === 'Enter'){ setReadingPages(); }">
+                <button class="btn btn-ghost btn-sm" onclick="setReadingPages()">Apply</button>
+              </div>
+              <button class="btn btn-ghost btn-sm reading-reset-btn" onclick="resetReadingPages()">Reset today to
+                0</button>
+              <button class="btn btn-ghost btn-sm reading-danger-btn" onclick="resetReadingLast30Days()">Reset last 30
+                days to 0</button>
+              <div class="reading-inline-hint">Manual override for today's reading counter.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Book -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">📘 Current Book</div>
+          </div>
+          <div id="currentBookCard"></div>
+        </div>
+
+        <!-- Library -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">📚 Library</div>
+            <button class="btn btn-primary btn-sm" onclick="openAddBook()">+ Add Book</button>
+          </div>
+          <div class="grid-3" id="booksList"></div>
+        </div>
+      </div>
+
+      <!-- ══════════ FITNESS ══════════ -->
+      <div id="page-fitness" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">🏋️ Fitness</div>
+            <div class="page-subtitle">Track workouts, measure progress, crush goals</div>
+          </div>
+          <div class="page-header-right">
+            <span class="date-badge" id="fitnessTodayBadge"></span>
+            <button class="btn btn-primary" id="workoutBtn" onclick="openLogWorkout()">+ Log Workout</button>
+          </div>
+        </div>
+
+        <!-- Fitness Hero — Premium -->
+        <section class="fit-hero section" aria-label="Weekly fitness progress">
+          <div class="fit-hero__main">
+            <div class="fit-hero__ring-wrap">
+              <svg class="fit-hero__ring" width="110" height="110" viewBox="0 0 110 110">
+                <circle class="fit-hero__ring-track" cx="55" cy="55" r="48" stroke-width="7" fill="none" />
+                <circle class="fit-hero__ring-fill" id="fitHeroRing" cx="55" cy="55" r="48" stroke-width="7" fill="none"
+                  stroke="var(--fitness)" stroke-dasharray="301.6" stroke-dashoffset="301.6" stroke-linecap="round" />
+              </svg>
+              <div class="fit-hero__ring-label">
+                <span class="fit-hero__ring-pct" id="fitHeroRingPct">0%</span>
+                <span class="fit-hero__ring-sub">Weekly</span>
+              </div>
+            </div>
+            <div class="fit-hero__copy">
+              <div class="fit-hero__kicker">⚡ Weekly Goal</div>
+              <div class="fit-hero__goal-text" id="fitnessGoalText">0 / 5 days</div>
+              <div class="fit-hero__suggestion" id="fitnessSuggestion">Start your first workout today.</div>
+              <div class="fitness-goal-track" style="margin-top:10px;">
+                <div class="fitness-goal-fill" id="fitnessGoalBar" style="width:0%;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="fit-hero__stats">
+            <div class="fit-hero__stat">
+              <div class="fit-hero__stat-icon">🔥</div>
+              <div class="fit-hero__stat-value" id="fitnessStreak">0</div>
+              <div class="fit-hero__stat-label">Streak</div>
+            </div>
+            <div class="fit-hero__stat">
+              <div class="fit-hero__stat-icon">⏱️</div>
+              <div class="fit-hero__stat-value" id="fitnessAvgDuration">0</div>
+              <div class="fit-hero__stat-label">Avg Min</div>
+            </div>
+            <div class="fit-hero__stat">
+              <div class="fit-hero__stat-icon">🏆</div>
+              <div class="fit-hero__stat-value" id="fitnessBestDay" style="font-size:14px;">-</div>
+              <div class="fit-hero__stat-label">Best Day</div>
+            </div>
+            <div class="fit-hero__stat">
+              <div class="fit-hero__stat-icon">💪</div>
+              <div class="fit-hero__stat-value" id="fitnessTotalVolume">0</div>
+              <div class="fit-hero__stat-label">Total Reps</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Rest Timer -->
+        <section class="fit-rest-timer card section" aria-label="Rest timer between sets">
+          <div class="fit-rest__header">
+            <div class="card-title">⏱️ Rest Timer</div>
+            <div class="fit-rest__presets">
+              <button type="button" class="fit-rest__preset" onclick="setRestTimer(30)">30s</button>
+              <button type="button" class="fit-rest__preset" onclick="setRestTimer(60)">60s</button>
+              <button type="button" class="fit-rest__preset active" onclick="setRestTimer(90)">90s</button>
+              <button type="button" class="fit-rest__preset" onclick="setRestTimer(120)">2m</button>
+              <button type="button" class="fit-rest__preset" onclick="setRestTimer(180)">3m</button>
+            </div>
+          </div>
+          <div class="fit-rest__body">
+            <div class="fit-rest__display" id="restTimerDisplay">1:30</div>
+            <div class="fit-rest__progress">
+              <div class="fit-rest__progress-fill" id="restTimerBar" style="width:100%;"></div>
+            </div>
+            <div class="fit-rest__controls">
+              <button type="button" class="btn btn-primary btn-sm" id="restTimerBtn" onclick="toggleRestTimer()">▶
+                Start</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="resetRestTimer()">↺ Reset</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Stats Cards — Enhanced -->
+        <div class="fit-stats-grid section">
+          <div class="fit-stat-card">
+            <div class="fit-stat-card__icon">📅</div>
+            <div class="fit-stat-card__value" id="weekWorkouts">0</div>
+            <div class="fit-stat-card__label">This Week</div>
+            <div class="fit-stat-card__sub" id="weekSessions">0 sessions</div>
+          </div>
+          <div class="fit-stat-card">
+            <div class="fit-stat-card__icon">📆</div>
+            <div class="fit-stat-card__value" id="monthWorkouts">0</div>
+            <div class="fit-stat-card__label">This Month</div>
+            <div class="fit-stat-card__sub" id="monthSessions">0 sessions</div>
+          </div>
+          <div class="fit-stat-card">
+            <div class="fit-stat-card__icon">⏰</div>
+            <div class="fit-stat-card__value" id="totalFitnessTime">0</div>
+            <div class="fit-stat-card__label">Total Minutes</div>
+            <div class="fit-stat-card__sub">last 30 days</div>
+          </div>
+          <div class="fit-stat-card">
+            <div class="fit-stat-card__icon">🔄</div>
+            <div class="fit-stat-card__value" id="totalFitnessReps">0</div>
+            <div class="fit-stat-card__label">Total Reps</div>
+            <div class="fit-stat-card__sub">last 30 days</div>
+          </div>
+        </div>
+
+        <!-- Body Metrics — Ultra Premium -->
+        <section class="fit-bmi-card card section" aria-label="Body metrics and BMI tracker">
+          <div class="fit-bmi__header">
+            <div class="section-header" style="margin-bottom:0;">
+              <div class="card-title">⚖️ Body Metrics</div>
+              <span class="badge" id="fitBmiBadge" style="font-size:10px;">Track your body composition</span>
+            </div>
+          </div>
+
+          <!-- Top Metric Cards -->
+          <div class="fit-bmi__metrics fit-bmi__metrics--5">
+            <div class="fit-bmi__metric-card">
+              <div class="fit-bmi__metric-icon">📏</div>
+              <div class="fit-bmi__metric-val" id="fitHeightDisplay">--</div>
+              <div class="fit-bmi__metric-unit">cm</div>
+              <div class="fit-bmi__metric-label">Height</div>
+            </div>
+            <div class="fit-bmi__metric-card">
+              <div class="fit-bmi__metric-icon">⚖️</div>
+              <div class="fit-bmi__metric-val" id="fitWeightCurrent">--</div>
+              <div class="fit-bmi__metric-unit">kg</div>
+              <div class="fit-bmi__metric-label">Weight</div>
+            </div>
+            <div class="fit-bmi__metric-card fit-bmi__metric-card--bmi">
+              <div class="fit-bmi__metric-icon">📊</div>
+              <div class="fit-bmi__metric-val" id="fitBmiValue">--</div>
+              <div class="fit-bmi__metric-unit" id="fitBmiCategory">--</div>
+              <div class="fit-bmi__metric-label">BMI</div>
+            </div>
+            <div class="fit-bmi__metric-card fit-bmi__metric-card--fat">
+              <div class="fit-bmi__metric-icon">🔥</div>
+              <div class="fit-bmi__metric-val" id="fitBodyFatDisplay">--</div>
+              <div class="fit-bmi__metric-unit">%</div>
+              <div class="fit-bmi__metric-label">Body Fat</div>
+            </div>
+            <div class="fit-bmi__metric-card fit-bmi__metric-card--tdee">
+              <div class="fit-bmi__metric-icon">⚡</div>
+              <div class="fit-bmi__metric-val" id="fitBmrDisplay">--</div>
+              <div class="fit-bmi__metric-unit">kcal/day</div>
+              <div class="fit-bmi__metric-label">TDEE</div>
+            </div>
+          </div>
+
+          <!-- BMI Gauge -->
+          <div class="fit-bmi__gauge-wrap" id="fitBmiGaugeWrap" style="display:none;">
+            <div class="fit-bmi__gauge">
+              <div class="fit-bmi__gauge-zone fit-bmi__gauge-zone--under">Underweight</div>
+              <div class="fit-bmi__gauge-zone fit-bmi__gauge-zone--normal">Normal</div>
+              <div class="fit-bmi__gauge-zone fit-bmi__gauge-zone--over">Overweight</div>
+              <div class="fit-bmi__gauge-zone fit-bmi__gauge-zone--obese">Obese</div>
+              <div class="fit-bmi__gauge-needle" id="fitBmiNeedle"></div>
+            </div>
+            <div class="fit-bmi__gauge-labels">
+              <span>16</span><span>18.5</span><span>25</span><span>30</span><span>40</span>
+            </div>
+          </div>
+
+          <!-- Body Composition Bar -->
+          <div class="fit-comp" id="fitCompWrap" style="display:none;">
+            <div class="fit-comp__title">Body Composition</div>
+            <div class="fit-comp__bar">
+              <div class="fit-comp__bar-lean" id="fitCompLean" style="width:80%;">
+                <span class="fit-comp__bar-text" id="fitCompLeanText">Lean</span>
+              </div>
+              <div class="fit-comp__bar-fat" id="fitCompFat" style="width:20%;">
+                <span class="fit-comp__bar-text" id="fitCompFatText">Fat</span>
+              </div>
+            </div>
+            <div class="fit-comp__legend">
+              <span class="fit-comp__legend-item"><span class="fit-comp__dot fit-comp__dot--lean"></span> Lean Mass:
+                <strong id="fitCompLeanKg">--</strong></span>
+              <span class="fit-comp__legend-item"><span class="fit-comp__dot fit-comp__dot--fat"></span> Fat Mass:
+                <strong id="fitCompFatKg">--</strong></span>
+            </div>
+          </div>
+
+          <!-- Caloric Needs -->
+          <div class="fit-cal" id="fitCalWrap" style="display:none;">
+            <div class="fit-cal__title">🔥 Daily Caloric Needs</div>
+            <div class="fit-cal__grid">
+              <div class="fit-cal__card">
+                <div class="fit-cal__card-label">BMR</div>
+                <div class="fit-cal__card-val" id="fitCalBmr">--</div>
+                <div class="fit-cal__card-sub">At rest</div>
+              </div>
+              <div class="fit-cal__card fit-cal__card--cut">
+                <div class="fit-cal__card-label">🔻 Cut</div>
+                <div class="fit-cal__card-val" id="fitCalCut">--</div>
+                <div class="fit-cal__card-sub">-500 kcal</div>
+              </div>
+              <div class="fit-cal__card fit-cal__card--maintain">
+                <div class="fit-cal__card-label">⚖️ Maintain</div>
+                <div class="fit-cal__card-val" id="fitCalMaintain">--</div>
+                <div class="fit-cal__card-sub">TDEE</div>
+              </div>
+              <div class="fit-cal__card fit-cal__card--bulk">
+                <div class="fit-cal__card-label">🔺 Bulk</div>
+                <div class="fit-cal__card-val" id="fitCalBulk">--</div>
+                <div class="fit-cal__card-sub">+300 kcal</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Health Analysis -->
+          <div class="fit-bmi__analysis" id="fitBmiAnalysis" style="display:none;">
+            <div class="fit-bmi__analysis-header">
+              <span class="fit-bmi__analysis-icon" id="fitBmiStatusIcon">💚</span>
+              <div>
+                <div class="fit-bmi__analysis-title" id="fitBmiStatusTitle">Health Status</div>
+                <div class="fit-bmi__analysis-subtitle" id="fitBmiStatusSub">Enter your data to see analysis</div>
+              </div>
+            </div>
+            <div class="fit-bmi__analysis-details" id="fitBmiDetails"></div>
+          </div>
+
+          <!-- All Inputs -->
+          <!-- Body Metrics Enhanced -->
+          <div class="fit-bmi__inputs-full">
+            <div class="fit-bmi__inputs-row">
+              <div class="fit-bmi__input-group">
+                <label for="fitHeightInput">📏 Height (cm)</label>
+                <input type="number" id="fitHeightInput" placeholder="175" min="100" max="250">
+              </div>
+              <div class="fit-bmi__input-group">
+                <label for="fitWeightInput">⚖️ Weight (kg)</label>
+                <input type="number" id="fitWeightInput" placeholder="75.5" min="20" max="300" step="0.1">
+              </div>
+              <div class="fit-bmi__input-group">
+                <label for="fitAgeInput">🎂 Age</label>
+                <input type="number" id="fitAgeInput" placeholder="25" min="10" max="100">
+              </div>
+            </div>
+
+            <div class="fit-bmi__inputs-row">
+              <div class="fit-bmi__input-group">
+                <label for="fitGenderSelect">👤 Gender</label>
+                <select id="fitGenderSelect" onchange="toggleHipInput()">
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </div>
+              <div class="fit-bmi__input-group">
+                <label for="fitActivitySelect">🏃 Activity</label>
+                <select id="fitActivitySelect">
+                  <option value="1.2">Sedentary</option>
+                  <option value="1.375">Light (1-3x/wk)</option>
+                  <option value="1.55" selected>Moderate (3-5x/wk)</option>
+                  <option value="1.725">Active (6-7x/wk)</option>
+                  <option value="1.9">Very Active</option>
+                </select>
+              </div>
+              <div class="fit-bmi__input-group">
+                <label for="fitBodyFatInput">🔥 Body Fat % (Manual)</label>
+                <input type="number" id="fitBodyFatInput" placeholder="Auto-calc" min="3" max="60" step="0.1">
+              </div>
+            </div>
+
+            <div class="fit-bmi__navy-row"
+              style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+              <div class="fit-bmi__input-group">
+                <label for="fitWaistInput">📏 Waist (cm)</label>
+                <input type="number" id="fitWaistInput" placeholder="80" min="40" max="200">
+              </div>
+              <div class="fit-bmi__input-group">
+                <label for="fitNeckInput">🧣 Neck (cm)</label>
+                <input type="number" id="fitNeckInput" placeholder="40" min="20" max="100">
+              </div>
+              <div class="fit-bmi__input-group" id="fitHipGroup" style="display:none;">
+                <label for="fitHipInput">🍑 Hip (cm)</label>
+                <input type="number" id="fitHipInput" placeholder="95" min="40" max="200">
+              </div>
+            </div>
+
+            <div class="fit-bmi__action-row" style="margin-top: 15px;">
+              <button type="button" class="btn btn-primary" style="flex:1;" onclick="saveBodyMetrics()">💾 Calculate &
+                Sync</button>
+              <button type="button" class="btn btn-ghost" onclick="logBodyWeight()">📊 History</button>
+            </div>
+          </div>
+
+          <!-- Weight Trend -->
+          <div class="fit-bmi__trend-row" style="margin-top: 20px;">
+            <div
+              style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 10px;">
+              Weight Progress (Last 30 Days)</div>
+            <div class="fit-weight__trend" id="fitWeightTrend"
+              style="height: 120px; display: flex; align-items: flex-end; gap: 4px; padding: 10px 0;"></div>
+          </div>
+
+          <!-- Weight History (Hidden by default, shown via History button) -->
+          <div id="weightHistoryModal" class="modal-overlay">
+            <div class="modal">
+              <div class="modal-header">
+                <div class="modal-title">📈 Weight History</div>
+                <button type="button" class="modal-close" onclick="closeModal('weightHistoryModal')">✕</button>
+              </div>
+              <div id="weightHistoryLog" style="max-height: 400px; overflow-y: auto; padding: 10px;"></div>
+            </div>
+          </div>
+          <div class="fit-weight__history" id="fitWeightHistory"></div>
+        </section>
+
+        <!-- Workout Distribution -->
+        <section class="section">
+          <div class="section-header">
+            <div class="section-title">🏃 Workout Distribution</div>
+            <span class="badge" id="fitDistBadge" style="font-size:10px;">last 30 days</span>
+          </div>
+          <div class="fitness-type-grid" id="fitnessTypeBreakdown"></div>
+        </section>
+
+        <!-- Weekly Chart -->
+        <section class="fit-week-card card section" aria-label="Weekly workout chart">
+          <div class="section-header">
+            <div class="card-title">📊 Week Overview</div>
+            <span class="badge badge-fitness" id="fitWeekBadge">0 sessions</span>
+          </div>
+          <div class="fitness-week-chart" id="fitnessWeekChart"></div>
+        </section>
+
+        <!-- Workout Log — Enhanced -->
+        <section class="fit-log-card card section" aria-label="Workout history">
+          <div class="section-header">
+            <div class="card-title">📋 Workout Log</div>
+            <span class="badge badge-fitness" id="fitLogCount">0 entries</span>
+          </div>
+          <div id="workoutLog"></div>
+        </section>
+      </div>
+
+      <div id="page-sleep" class="page">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">SLEEP INTELLIGENCE</h1>
+            <p class="page-subtitle">Personal Recovery & Performance Laboratory</p>
+          </div>
+          <button class="btn btn-primary" onclick="openSleepModal()">
+            <span>🌙</span> LOG RECOVERY
+          </button>
+        </div>
+
+        <div class="sleep-intel-grid">
+          <!-- Hero Score Card -->
+          <div class="sleep-intel-card sleep-score-hero">
+            <div class="sleep-score-circle">
+              <svg class="sleep-score-svg" width="200" height="200" viewBox="0 0 200 200">
+                <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12" />
+                <circle id="sleepScoreRing" cx="100" cy="100" r="90" fill="none" stroke="var(--sleep-primary)"
+                  stroke-width="12" stroke-dasharray="565.48" stroke-dashoffset="565.48" stroke-linecap="round"
+                  style="transition: stroke-dashoffset 1.5s var(--ease-spring);" />
+              </svg>
+              <div class="sleep-score-value">
+                <div class="sleep-score-num" id="sleepScoreVal">--</div>
+                <div class="sleep-score-label">OPTIMIZATION</div>
+              </div>
+            </div>
+            <div class="sleep-hero-info">
+              <div class="sleep-hero-status" id="sleepStatus">ANALYZING TRENDS...</div>
+              <h2 class="sleep-hero-title" id="sleepGreeting">Calculating recovery state...</h2>
+              <p class="sleep-hero-summary" id="sleepAIBrief">Our AI engine is currently synthesizing your behavioral
+                data from the last 7 cycles to identify performance bottlenecks.</p>
+
+              <div class="ai-insight-box">
+                <div class="ai-insight-title">
+                  <span>🧠</span> AI SMART INSIGHT
+                </div>
+                <div class="ai-insight-text" id="sleepMainInsight">Complete your first log to activate the Intelligence
+                  Engine.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mini Stats Row -->
+          <div class="sleep-stats-row">
+            <div class="sleep-mini-stat">
+              <div class="sleep-mini-stat-val" id="sleepAvgDuration">--</div>
+              <div class="sleep-mini-stat-label">AVG DURATION</div>
+            </div>
+            <div class="sleep-mini-stat">
+              <div class="sleep-mini-stat-val" id="sleepAvgQuality">--</div>
+              <div class="sleep-mini-stat-label">AVG QUALITY</div>
+            </div>
+            <div class="sleep-mini-stat">
+              <div class="sleep-mini-stat-val" id="sleepEfficiency">--</div>
+              <div class="sleep-mini-stat-label">EFFICIENCY</div>
+            </div>
+            <div class="sleep-mini-stat">
+              <div class="sleep-mini-stat-val" id="sleepConsistency">--</div>
+              <div class="sleep-mini-stat-label">CONSISTENCY</div>
+            </div>
+          </div>
+
+          <!-- Main Analytics Chart -->
+          <div class="sleep-intel-card sleep-chart-main">
+            <div class="section-header">
+              <div class="card-title">📈 RECOVERY TIMELINE</div>
+              <div class="day-navigator-actions">
+                <button class="btn btn-ghost btn-sm" onclick="renderSleepChart('duration')">Duration</button>
+                <button class="btn btn-ghost btn-sm" onclick="renderSleepChart('quality')">Quality</button>
+              </div>
+            </div>
+            <canvas id="sleepMainChart"></canvas>
+          </div>
+
+          <!-- Sleep Stages -->
+          <div class="sleep-intel-card sleep-stages-card">
+            <div class="section-header">
+              <div class="card-title">🌀 ARCHITECTURE</div>
+            </div>
+            <div style="height: 180px; margin-bottom: 20px;">
+              <canvas id="sleepStagesChart"></canvas>
+            </div>
+            <div id="sleepStagesList">
+              <!-- JS Injected -->
+            </div>
+          </div>
+
+          <!-- Caffeine Intelligence -->
+          <div class="sleep-intel-card sleep-caffeine-intel">
+            <div class="section-header">
+              <div class="card-title">☕ CAFFEINE IMPACT</div>
+              <span class="badge" id="caffeineStatus">Normal</span>
+            </div>
+            <div class="sleep-mini-stat-val" id="caffeineBodyLevel">-- mg</div>
+            <div class="sleep-mini-stat-label">Estimated in body at bedtime</div>
+            <div class="ai-insight-box">
+              <div class="ai-insight-text" id="caffeineInsight">No caffeine data tracked for today.</div>
+            </div>
+          </div>
+
+          <!-- Hydration Intelligence -->
+          <div class="sleep-intel-card sleep-hydration-intel">
+            <div class="section-header">
+              <div class="card-title">💧 HYDRATION SYNERGY</div>
+            </div>
+            <div class="sleep-mini-stat-val" id="hydrationLevel">-- L</div>
+            <div class="sleep-mini-stat-label">Total fluid intake</div>
+            <div class="ai-insight-box">
+              <div class="ai-insight-text" id="hydrationInsight">Hydration levels directly impact cardiovascular
+                recovery (HRV).</div>
+            </div>
+          </div>
+
+          <!-- Environmental Factors -->
+          <div class="sleep-intel-card sleep-factors-intel">
+            <div class="section-header">
+              <div class="card-title">⚖️ BEHAVIORAL CORRELATIONS</div>
+            </div>
+            <div class="factor-tag-grid" id="sleepFactorTags">
+              <!-- JS Injected -->
+            </div>
+          </div>
+
+          <!-- Recovery Log -->
+          <div class="sleep-intel-card" style="grid-column: span 12;">
+            <div class="section-header">
+              <div class="card-title">📋 HISTORICAL DATA</div>
+              <span class="badge" id="sleepLogCount">0 entries</span>
+            </div>
+            <div id="sleepLogList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ RECOVERY LABORATORY MODAL ═══ -->
+      <div class="modal-overlay" id="sleepModal">
+        <div class="modal sleep-modal" style="max-width: 600px;">
+          <div class="modal-header">
+            <div class="card-title">🔬 RECOVERY LABORATORY</div>
+            <button class="modal-close" onclick="closeSleepModal()">×</button>
+          </div>
+
+          <div class="sleep-modal-tabs">
+            <button class="sleep-tab-btn active" onclick="switchSleepTab('core', this)">CORE</button>
+            <button class="sleep-tab-btn" onclick="switchSleepTab('architecture', this)">ARCHITECTURE</button>
+            <button class="sleep-tab-btn" onclick="switchSleepTab('metabolic', this)">METABOLIC</button>
+            <button class="sleep-tab-btn" onclick="switchSleepTab('lifestyle', this)">LIFESTYLE</button>
+          </div>
+
+          <div class="modal-body" style="max-height: 70vh; overflow-y: auto; padding-right: 10px;">
+
+            <!-- Tab 1: Core -->
+            <div class="sleep-tab-content active" id="sleepTab-core">
+              <div class="input-grid-2">
+                <div class="luxury-input-group">
+                  <label class="luxury-label">Bedtime</label>
+                  <input type="time" id="sleepBedtime" class="luxury-input">
+                </div>
+                <div class="luxury-input-group">
+                  <label class="luxury-label">Wake Time</label>
+                  <input type="time" id="sleepWakeTime" class="luxury-input">
+                </div>
+              </div>
+              <div class="input-grid-2">
+                <div class="luxury-input-group">
+                  <label class="luxury-label">Latency (min)</label>
+                  <input type="number" id="sleepLatency" class="luxury-input" placeholder="15">
+                </div>
+                <div class="luxury-input-group">
+                  <label class="luxury-label">Wakeups</label>
+                  <input type="number" id="sleepWakeups" class="luxury-input" placeholder="0">
+                </div>
+              </div>
+              <div class="luxury-input-group">
+                <label class="luxury-label">Subjective Quality (1-10)</label>
+                <input type="range" id="sleepQuality" min="1" max="10" step="1"
+                  style="width:100%; accent-color: var(--sleep-primary);">
+              </div>
+              <div class="luxury-input-group">
+                <label class="luxury-label">Morning Energy (1-10)</label>
+                <input type="range" id="sleepEnergy" min="1" max="10" step="1"
+                  style="width:100%; accent-color: var(--sleep-secondary);">
+              </div>
+              <div class="luxury-input-group">
+                <label class="luxury-label">Morning Mood</label>
+                <select id="sleepMood" class="luxury-select">
+                  <option value="refreshed">Refreshed & Sharp</option>
+                  <option value="neutral">Neutral / Balanced</option>
+                  <option value="groggy">Groggy / Heavy</option>
+                  <option value="tired">Tired / Unrecovered</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Tab 2: Architecture -->
+            <div class="sleep-tab-content" id="sleepTab-architecture">
+              <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Input your wearable data. If
+                left empty, our AI will estimate stages based on your quality rating.</p>
+              <div class="input-grid-2">
+                <div class="luxury-input-group">
+                  <label class="luxury-label">Light Sleep (min)</label>
+                  <input type="number" id="sleepStageLight" class="luxury-input" placeholder="216">
+                </div>
+                <div class="luxury-input-group">
+                  <label class="luxury-label">Deep Sleep (min)</label>
+                  <input type="number" id="sleepStageDeep" class="luxury-input" placeholder="90">
+                </div>
+              </div>
+              <div class="input-grid-2">
+                <div class="luxury-input-group">
+                  <label class="luxury-label">REM Sleep (min)</label>
+                  <input type="number" id="sleepStageREM" class="luxury-input" placeholder="110">
+                </div>
+                <div class="luxury-input-group">
+                  <label class="luxury-label">Awake Time (min)</label>
+                  <input type="number" id="sleepStageAwake" class="luxury-input" placeholder="20">
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 3: Metabolic -->
+            <div class="sleep-tab-content" id="sleepTab-metabolic">
+              <div class="luxury-input-group">
+                <label class="luxury-label">Caffeine Intake Tracker</label>
+                <div style="display:flex; gap: 8px;">
+                  <select id="caffeineType" class="luxury-select" style="flex:2;">
+                    <option value="coffee">Coffee (Standard)</option>
+                    <option value="espresso">Espresso / Double</option>
+                    <option value="tea">Green/Black Tea</option>
+                    <option value="energy">Energy Drink</option>
+                    <option value="soda">Soda / Cola</option>
+                    <option value="preworkout">Pre-Workout</option>
+                  </select>
+                  <input type="time" id="caffeineTime" class="luxury-input" style="flex:1;">
+                  <button class="btn btn-primary" onclick="addCaffeineEntry()" style="padding: 0 15px;">+</button>
+                </div>
+              </div>
+              <div id="caffeineList" style="margin-top: 15px;">
+                <!-- Caffeine entries here -->
+              </div>
+              <div class="luxury-input-group" style="margin-top: 20px;">
+                <label class="luxury-label">Daily Hydration (Liters)</label>
+                <input type="number" id="sleepHydration" class="luxury-input" step="0.1" placeholder="2.5">
+              </div>
+            </div>
+
+            <!-- Tab 4: Lifestyle -->
+            <div class="sleep-tab-content" id="sleepTab-lifestyle">
+              <div class="input-grid-2">
+                <div class="luxury-input-group">
+                  <label class="luxury-label">Stress Level (1-10)</label>
+                  <input type="number" id="sleepStress" class="luxury-input" min="1" max="10" value="5">
+                </div>
+                <div class="luxury-input-group">
+                  <label class="luxury-label">Screen Time (min before bed)</label>
+                  <input type="number" id="sleepScreen" class="luxury-input" placeholder="60">
+                </div>
+              </div>
+              <div class="luxury-input-group">
+                <label class="luxury-label">Room Temperature (°C)</label>
+                <input type="number" id="sleepRoomTemp" class="luxury-input" step="0.5" placeholder="19.5">
+              </div>
+              <div class="luxury-input-group">
+                <label class="luxury-label">Recovery Notes</label>
+                <textarea id="sleepNotes" class="luxury-input" rows="3"
+                  placeholder="Any disturbances, dreams, or medications..."></textarea>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeSleepModal()">Discard</button>
+            <button class="btn btn-primary" onclick="saveSleepIntelligence()">ANALYSIS & SAVE</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="page-learning" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title kinetic-text">🧠 KNOWLEDGE HUB</div>
+            <div class="page-subtitle">Master your skills, track courses, and expand your mind</div>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-primary aurora-glow" onclick="openAddCourse()">
+              <span class="icon">+</span> ADD COURSE
+            </button>
+          </div>
+        </div>
+
+        <!-- Learning Analytics/Stats -->
+        <div class="work-stats-grid section">
+          <div class="kpi-card aurora-border">
+            <div class="kpi-label">ACTIVE COURSES</div>
+            <div class="kpi-value" id="learningActiveCourses">0</div>
+          </div>
+          <div class="kpi-card aurora-border">
+            <div class="kpi-label">COMPLETED</div>
+            <div class="kpi-value" id="learningCompletedCourses">0</div>
+          </div>
+          <div class="kpi-card aurora-border">
+            <div class="kpi-label">TIME INVESTED</div>
+            <div class="kpi-value"><span id="learningTotalHours">0</span><small>h</small></div>
+            <div class="kpi-sub">Total course hours logged</div>
+          </div>
+          <div class="kpi-card aurora-border">
+            <div class="kpi-label">OVERALL PROGRESS</div>
+            <div class="kpi-value" id="learningOverallProgress">0%</div>
+            <div class="kpi-sub">Average completion</div>
+          </div>
+        </div>
+
+        <!-- Today's Study Activity -->
+        <div class="card section" id="learningTodayActivity">
+          <div class="section-header">
+            <div class="card-title">📅 Today's Study Activity</div>
+            <span class="badge" id="learningTodayBadge" style="background:rgba(14,165,233,0.12);color:var(--learning);">0 sessions</span>
+          </div>
+          <div id="learningTodaySessions">
+            <div class="empty-state" style="padding:16px;"><div class="empty-state-text">No study sessions logged today. Start learning!</div></div>
+          </div>
+        </div>
+
+        <div class="work-layout-grid">
+          <!-- Main Course Area -->
+          <div class="task-area">
+            <div class="card work-card main-tasks">
+              <div class="card-header">
+                <div class="section-title">📚 My Courses</div>
+              </div>
+              <div id="coursesList" class="course-list-container">
+                <!-- Courses will be rendered here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Side Panel -->
+          <div class="side-panel">
+            <div class="card aurora-glow-alt">
+              <div class="card-title">LEARNING INSIGHTS</div>
+              <div class="ai-insight-box" style="margin-top: 15px;">
+                <div class="ai-insight-title">🧠 SMART INSIGHT</div>
+                <div class="ai-insight-text" id="learningCourseInsight">
+                  Focus on completing your most progressed course to build momentum.
+                </div>
+              </div>
+              <div class="ai-insight-box" style="margin-top: 12px;" id="learningLinkedTasksInsight">
+                <div class="ai-insight-title">📋 LINKED TASKS</div>
+                <div class="ai-insight-text" id="learningLinkedTasksText">
+                  Link tasks to courses to auto-track your study progress.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ STATS ══════════ -->
+      <div id="page-podcast" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">🎧 Podcast</div>
+            <div class="page-subtitle">Track listening sessions, minutes, and consistency.</div>
+          </div>
+        </div>
+
+        <div class="card section podcast-hero-card">
+          <div class="section-header podcast-hero-header">
+            <div>
+              <div class="card-title">🎙️ Daily Podcast Progress</div>
+              <div class="podcast-hero-note">Build a focused listening habit with clear daily momentum.</div>
+            </div>
+            <span class="badge badge-podcast" id="podcastStatusBadge">Not started</span>
+          </div>
+
+          <div class="podcast-kpi-grid">
+            <div class="podcast-kpi">
+              <div class="podcast-kpi-label">Today</div>
+              <div class="podcast-kpi-value" id="podcastTodayMinutes">0</div>
+              <div class="podcast-kpi-sub">minutes listened</div>
+            </div>
+            <div class="podcast-kpi">
+              <div class="podcast-kpi-label">Goal</div>
+              <div class="podcast-kpi-value" id="podcastGoalMinutes">30</div>
+              <div class="podcast-kpi-sub">minutes target</div>
+            </div>
+            <div class="podcast-kpi" id="podcastBalanceCard">
+              <div class="podcast-kpi-label" id="podcastBalanceLabel">Remaining</div>
+              <div class="podcast-kpi-value" id="podcastRemainingMinutes">30</div>
+              <div class="podcast-kpi-sub" id="podcastBalanceSub">minutes left</div>
+            </div>
+            <div class="podcast-kpi">
+              <div class="podcast-kpi-label">Last 30 Days</div>
+              <div class="podcast-kpi-value" id="podcastMonthMinutes">0</div>
+              <div class="podcast-kpi-sub"><span id="podcastMonthAvg">0.0</span> avg/day</div>
+            </div>
+          </div>
+
+          <div class="progress-track">
+            <div class="progress-fill" id="podcastProgressBar" style="background:var(--podcast);width:0%;"></div>
+          </div>
+          <div class="podcast-progress-meta" id="podcastProgressMeta">Start with one short episode today.</div>
+
+          <div class="podcast-hero-actions">
+            <div class="podcast-input-block">
+              <label class="input-label" for="podcastGoalInput">Daily goal (minutes)</label>
+              <div class="podcast-inline-controls">
+                <input type="number" id="podcastGoalInput" min="5" step="5" placeholder="Daily goal">
+                <button class="btn btn-ghost btn-sm" onclick="savePodcastGoal()">Save Goal</button>
+              </div>
+            </div>
+            <div class="podcast-input-block">
+              <label class="input-label" for="podcastQuickMinutesInput">Quick add (minutes)</label>
+              <div class="podcast-inline-controls">
+                <input type="number" id="podcastQuickMinutesInput" min="1" placeholder="Minutes"
+                  onkeydown="if(event.key === 'Enter'){ quickAddPodcastMinutes(); }">
+                <button class="btn btn-primary btn-sm" onclick="quickAddPodcastMinutes()">Add</button>
+              </div>
+              <div class="podcast-inline-hint">Creates a quick generic session when you are in a hurry.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2 section podcast-layout">
+          <div class="card">
+            <div class="section-header">
+              <div class="section-title">➕ Log Podcast Session</div>
+            </div>
+            <div class="grid-2" style="margin-top:12px;">
+              <div class="input-group" style="margin:0;">
+                <label class="input-label" for="podcastShowInput">Show</label>
+                <input type="text" id="podcastShowInput" placeholder="Podcast show name">
+              </div>
+              <div class="input-group" style="margin:0;">
+                <label class="input-label" for="podcastEpisodeInput">Episode</label>
+                <input type="text" id="podcastEpisodeInput" placeholder="Episode title (optional)">
+              </div>
+            </div>
+            <div class="grid-2" style="margin-top:8px;">
+              <div class="input-group" style="margin:0;">
+                <label class="input-label" for="podcastPlatformInput">Platform</label>
+                <select id="podcastPlatformInput">
+                  <option value="Spotify">Spotify</option>
+                  <option value="YouTube">YouTube</option>
+                  <option value="Apple Podcasts">Apple Podcasts</option>
+                  <option value="Google Podcasts">Google Podcasts</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="input-group" style="margin:0;">
+                <label class="input-label" for="podcastCategoryInput">Category</label>
+                <select id="podcastCategoryInput">
+                  <option value="business">Business</option>
+                  <option value="self">Self Development</option>
+                  <option value="tech">Technology</option>
+                  <option value="health">Health</option>
+                  <option value="religion">Spiritual</option>
+                  <option value="other" selected>Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid-2" style="margin-top:8px;">
+              <div class="input-group" style="margin:0;">
+                <label class="input-label" for="podcastMinutesInput">Minutes</label>
+                <input type="number" id="podcastMinutesInput" min="1" placeholder="Listening minutes"
+                  onkeydown="if(event.key === 'Enter'){ addPodcastSession(); }">
+              </div>
+              <div class="input-group" style="margin:0;">
+                <label class="input-label" for="podcastNotesInput">Notes</label>
+                <input type="text" id="podcastNotesInput" placeholder="Optional takeaway">
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+              <button class="btn btn-primary" onclick="addPodcastSession()">Save Session</button>
+              <button class="btn btn-ghost" onclick="resetPodcastToday()">Reset Today</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-header">
+              <div class="section-title">📋 Today's Sessions</div>
+              <span class="badge badge-podcast" id="podcastTodaySessionsBadge">0 sessions</span>
+            </div>
+            <div id="podcastTodayList"></div>
+          </div>
+        </div>
+
+        <div class="card section">
+          <div class="section-header">
+            <div class="section-title">🔥 Top Shows (Last 30 Days)</div>
+          </div>
+          <div class="podcast-top-shows" id="podcastTopShows"></div>
+        </div>
+
+        <div class="card section">
+          <div class="card-title">📊 Weekly Listening</div>
+          <div class="podcast-week-chart" id="podcastWeekChart"></div>
+        </div>
+      </div>
+
+      <!-- ══════════ STATS ══════════ -->
+      <div id="page-stats" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📈 Life Analytics</div>
+            <div class="page-subtitle">Deep insights into your consistency, growth, and life balance</div>
+          </div>
+          <div class="stats-range-selector">
+            <button type="button" class="stats-range-btn active" data-range="7"
+              onclick="changeStatsRange(7)">7D</button>
+            <button type="button" class="stats-range-btn" data-range="14" onclick="changeStatsRange(14)">14D</button>
+            <button type="button" class="stats-range-btn" data-range="30" onclick="changeStatsRange(30)">30D</button>
+            <button type="button" class="stats-range-btn" data-range="90" onclick="changeStatsRange(90)">90D</button>
+          </div>
+        </div>
+
+        <!-- Hero KPI Cards -->
+        <div class="stats-hero-grid">
+          <div class="stats-hero-card worship-glow">
+            <div class="stats-hero-card__icon">🕌</div>
+            <div class="stats-hero-card__body">
+              <div class="stats-hero-card__label">Worship</div>
+              <div class="stats-hero-card__value" id="statsWorshipAvg">0%</div>
+              <div class="stats-hero-card__trend" id="statsWorshipTrend"></div>
+            </div>
+          </div>
+          <div class="stats-hero-card work-glow">
+            <div class="stats-hero-card__icon">💼</div>
+            <div class="stats-hero-card__body">
+              <div class="stats-hero-card__label">Work</div>
+              <div class="stats-hero-card__value" id="statsWorkAvg">0%</div>
+              <div class="stats-hero-card__trend" id="statsWorkTrend"></div>
+            </div>
+          </div>
+          <div class="stats-hero-card reading-glow">
+            <div class="stats-hero-card__icon">📚</div>
+            <div class="stats-hero-card__body">
+              <div class="stats-hero-card__label">Reading</div>
+              <div class="stats-hero-card__value" id="statsReadingTotal">0</div>
+              <div class="stats-hero-card__trend" id="statsReadingTrend"></div>
+            </div>
+          </div>
+          <div class="stats-hero-card fitness-glow">
+            <div class="stats-hero-card__icon">🏋️</div>
+            <div class="stats-hero-card__body">
+              <div class="stats-hero-card__label">Fitness</div>
+              <div class="stats-hero-card__value" id="statsFitnessTotal">0</div>
+              <div class="stats-hero-card__trend" id="statsFitnessTrend"></div>
+            </div>
+          </div>
+          <div class="stats-hero-card learning-glow">
+            <div class="stats-hero-card__icon">🧠</div>
+            <div class="stats-hero-card__body">
+              <div class="stats-hero-card__label">Learning</div>
+              <div class="stats-hero-card__value" id="statsLearningTotal">0</div>
+              <div class="stats-hero-card__trend" id="statsLearningTrend"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Smart Insights -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">💡 Smart Insights</div>
+            <span class="badge" id="statsInsightsBadge">AI Analysis</span>
+          </div>
+          <div class="stats-insights-grid" id="statsInsights"></div>
+        </div>
+
+        <!-- Charts Row: Radar + Line -->
+        <div class="stats-charts-row">
+          <!-- Radar Chart — Life Balance -->
+          <div class="stats-chart-card">
+            <div class="stats-chart-card__header">
+              <div class="stats-chart-card__title">🎯 Life Balance</div>
+              <div class="stats-chart-card__desc">How balanced is your life across all domains</div>
+            </div>
+            <div class="stats-chart-canvas-wrap">
+              <canvas id="statsRadarChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Line Chart — Trends -->
+          <div class="stats-chart-card">
+            <div class="stats-chart-card__header">
+              <div class="stats-chart-card__title">📊 Performance Trends</div>
+              <div class="stats-chart-card__desc" id="statsTrendDesc">Daily scores over time</div>
+            </div>
+            <div class="stats-chart-canvas-wrap">
+              <canvas id="statsTrendChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weekly Stacked Bar Chart -->
+        <div class="stats-chart-card stats-chart-full">
+          <div class="stats-chart-card__header">
+            <div class="stats-chart-card__title">📅 Weekly Breakdown</div>
+            <div class="stats-chart-card__desc">Performance by category per day</div>
+          </div>
+          <div class="stats-chart-canvas-wrap" style="height:280px;">
+            <canvas id="statsWeeklyBarChart"></canvas>
+          </div>
+          <div class="stats-legend">
+            <span class="worship">Worship</span>
+            <span class="work">Tasks</span>
+            <span class="reading">Reading</span>
+            <span class="fitness">Fitness</span>
+            <span class="learning">Learning</span>
+          </div>
+        </div>
+
+        <!-- Big Heatmap — Premium -->
+        <div class="big-heatmap-card section">
+          <div class="big-heatmap-header">
+            <div class="big-heatmap-title-row">
+              <div class="big-heatmap-icon">📊</div>
+              <div>
+                <div class="big-heatmap-title">Activity Heatmap</div>
+                <div class="big-heatmap-subtitle">Last 91 days of daily tracking</div>
+              </div>
+            </div>
+            <div class="big-heatmap-kpis" id="bigHeatmapKpis">
+              <div class="big-heatmap-kpi">
+                <div class="big-heatmap-kpi-value" id="bigHmActiveDays">0</div>
+                <div class="big-heatmap-kpi-label">Active Days</div>
+              </div>
+              <div class="big-heatmap-kpi">
+                <div class="big-heatmap-kpi-value" id="bigHmAvgScore">0</div>
+                <div class="big-heatmap-kpi-label">Avg Score</div>
+              </div>
+              <div class="big-heatmap-kpi">
+                <div class="big-heatmap-kpi-value" id="bigHmBestDay">0</div>
+                <div class="big-heatmap-kpi-label">Best Day</div>
+              </div>
+              <div class="big-heatmap-kpi">
+                <div class="big-heatmap-kpi-value" id="bigHmStreak">0</div>
+                <div class="big-heatmap-kpi-label">Streak</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="bigHeatmapLoading" style="display:none;">
+            <div class="loading-spinner" style="margin:0 auto;"></div>
+          </div>
+
+          <div class="big-heatmap-body">
+            <!-- Month labels -->
+            <div class="big-hm-month-labels" id="bigHmMonthLabels"></div>
+            <div class="big-hm-grid-wrap">
+              <!-- Weekday labels -->
+              <div class="big-hm-weekday-labels">
+                <span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span>
+              </div>
+              <!-- Cells -->
+              <div class="heatmap big-heatmap-grid" id="bigHeatmap"></div>
+            </div>
+          </div>
+
+          <div class="big-heatmap-footer">
+            <div class="big-heatmap-summary" id="bigHeatmapSummary">Tracking activity...</div>
+            <div class="big-heatmap-legend">
+              <span class="big-hm-legend-label">Less</span>
+              <span class="big-hm-legend-dot" data-level="0"></span>
+              <span class="big-hm-legend-dot" data-level="1"></span>
+              <span class="big-hm-legend-dot" data-level="2"></span>
+              <span class="big-hm-legend-dot" data-level="3"></span>
+              <span class="big-hm-legend-dot" data-level="4"></span>
+              <span class="big-hm-legend-label">More</span>
+            </div>
+          </div>
+
+          <!-- Tooltip on cell click -->
+          <div class="big-heatmap-tooltip" id="bigHmTooltip" hidden>
+            <div class="big-hm-tooltip-date" id="bigHmTooltipDate"></div>
+            <div class="big-hm-tooltip-score" id="bigHmTooltipScore"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ GOALS COMMAND CENTER ══════════ -->
+      <div id="page-weeklyGoals" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">🎯 Goals Command Center</div>
+            <div class="page-subtitle" id="weeklyGoalsWeekLabel">Week: -</div>
+          </div>
+        </div>
+
+        <!-- Goals Tabs -->
+        <div class="goals-tabs" id="goalsTabsNav">
+          <button type="button" class="goals-tab-btn active" data-goals-tab="weekly"
+            onclick="switchGoalsTab('weekly')">📅 Weekly Goals</button>
+          <button type="button" class="goals-tab-btn" data-goals-tab="custom" onclick="switchGoalsTab('custom')">🏆
+            Custom Goals</button>
+        </div>
+
+        <!-- ═══ WEEKLY GOALS TAB ═══ -->
+        <div id="goalsTab-weekly" class="goals-tab-content">
+          <!-- Goals Controls -->
+          <div class="card goals-control-panel">
+            <div class="goals-control-top">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="openAddGoalModal('weekly')">+ Add Goal</button>
+                <div class="goals-view-switch" role="group" aria-label="Goals view mode">
+                  <button type="button" class="goals-view-btn active" data-goals-view="cards" aria-pressed="true"
+                    onclick="setWeeklyGoalsView('cards')">Cards</button>
+                  <button type="button" class="goals-view-btn" data-goals-view="table" aria-pressed="false"
+                    onclick="setWeeklyGoalsView('table')">Table</button>
+                </div>
+              </div>
+              <div class="goals-control-hint" id="weeklyGoalsViewMeta">Track with Notion-style clarity: source,
+                progress,
+                and remaining.</div>
+            </div>
+            <div class="goals-control-filters">
+              <div class="input-group" style="margin:0;">
+                <label class="input-label" for="weeklyGoalsSearch">Search</label>
+                <input type="text" id="weeklyGoalsSearch" placeholder="Find a goal..."
+                  oninput="onWeeklyGoalsControlsChanged()">
+              </div>
+              <div class="input-group" style="margin:0;">
+                <label class="input-label" for="weeklyGoalsCategoryFilter">Category</label>
+                <select id="weeklyGoalsCategoryFilter" onchange="onWeeklyGoalsControlsChanged()">
+                  <option value="all" selected>All categories</option>
+                  <option value="health">Health</option>
+                  <option value="learning">Learning</option>
+                  <option value="work">Work</option>
+                  <option value="personal">Personal</option>
+                  <option value="fitness">Fitness</option>
+                  <option value="worship">Worship</option>
+                </select>
+              </div>
+              <div class="input-group" style="margin:0;">
+                <label class="input-label" for="weeklyGoalsSort">Sort</label>
+                <select id="weeklyGoalsSort" onchange="onWeeklyGoalsControlsChanged()">
+                  <option value="priority" selected>Priority (closest first)</option>
+                  <option value="progressDesc">Highest progress</option>
+                  <option value="updatedDesc">Recently updated</option>
+                  <option value="titleAsc">A-Z</option>
+                </select>
+              </div>
+            </div>
+            <div class="goals-template-row">
+              <button type="button" class="goal-template-chip" onclick="applyGoalTemplate('pushups900')">Push-ups
+                900</button>
+              <button type="button" class="goal-template-chip" onclick="applyGoalTemplate('quran70')">Quran 70
+                pages</button>
+              <button type="button" class="goal-template-chip" onclick="applyGoalTemplate('reading150')">Reading 150
+                pages</button>
+              <button type="button" class="goal-template-chip" onclick="applyGoalTemplate('podcast210')">Podcast 210
+                min</button>
+              <button type="button" class="goal-template-chip" onclick="applyGoalTemplate('fitness240')">Fitness 240
+                min</button>
+              <button type="button" class="goal-template-chip" onclick="applyGoalTemplate('learning5')">Learning 5
+                sessions</button>
+            </div>
+          </div>
+
+          <!-- Weekly Goals List -->
+          <div id="goalsList" class="goals-grid"></div>
+        </div>
+
+        <!-- ═══ CUSTOM GOALS TAB ═══ -->
+        <div id="goalsTab-custom" class="goals-tab-content" style="display:none;">
+          <!-- Custom Goals Hero -->
+          <div class="custom-goals-hero">
+            <div class="custom-goals-hero__header">
+              <div>
+                <div class="custom-goals-hero__title">🏆 Custom Duration Goals</div>
+                <div class="custom-goals-hero__desc">Set goals for any timeframe — monthly, quarterly, yearly, or
+                  custom. Track long-term ambitions alongside weekly targets.</div>
+              </div>
+              <button class="btn btn-primary" onclick="openAddGoalModal('custom')">+ Add Custom Goal</button>
+            </div>
+            <div class="goal-duration-selector" id="customGoalDurationFilter">
+              <button type="button" class="goal-duration-chip active" data-duration="all"
+                onclick="filterCustomGoals('all')">All</button>
+              <button type="button" class="goal-duration-chip" data-duration="month"
+                onclick="filterCustomGoals('month')">Monthly</button>
+              <button type="button" class="goal-duration-chip" data-duration="quarter"
+                onclick="filterCustomGoals('quarter')">Quarterly</button>
+              <button type="button" class="goal-duration-chip" data-duration="year"
+                onclick="filterCustomGoals('year')">Yearly</button>
+              <button type="button" class="goal-duration-chip" data-duration="custom"
+                onclick="filterCustomGoals('custom')">Custom</button>
+            </div>
+          </div>
+
+          <!-- Custom Goals List -->
+          <div id="customGoalsList" class="goals-grid"></div>
+        </div>
+
+        <!-- ═══ UNIFIED ANALYTICS ═══ -->
+        <div class="section" style="margin-top:24px;">
+          <div class="section-header">
+            <div class="section-title">📊 Goals Analytics</div>
+            <span class="badge" id="goalsAnalyticsBadge">Combined</span>
+          </div>
+          <div class="goals-analytics-grid">
+            <div class="goal-analytics-card">
+              <div class="goal-analytics-card__icon">🎯</div>
+              <div class="goal-analytics-card__value" id="totalGoalsCount">0</div>
+              <div class="goal-analytics-card__label">Total Goals</div>
+              <div class="goal-analytics-card__sub" id="totalGoalsSub">Weekly + Custom</div>
+            </div>
+            <div class="goal-analytics-card">
+              <div class="goal-analytics-card__icon">✅</div>
+              <div class="goal-analytics-card__value" id="totalGoalsCompleted">0</div>
+              <div class="goal-analytics-card__label">Completed</div>
+              <div class="goal-analytics-card__sub" id="totalCompletedSub">across all goals</div>
+            </div>
+            <div class="goal-analytics-card">
+              <div class="goal-analytics-card__icon">📈</div>
+              <div class="goal-analytics-card__value" id="totalGoalsProgress">0%</div>
+              <div class="goal-analytics-card__label">Avg Progress</div>
+              <div class="goal-analytics-card__sub">overall completion</div>
+            </div>
+            <div class="goal-analytics-card">
+              <div class="goal-analytics-card__icon">🔥</div>
+              <div class="goal-analytics-card__value" id="totalGoalsStreak">0</div>
+              <div class="goal-analytics-card__label">Active Goals</div>
+              <div class="goal-analytics-card__sub">in progress</div>
+            </div>
+            <div class="goal-analytics-card">
+              <div class="goal-analytics-card__icon">🏆</div>
+              <div class="goal-analytics-card__value" id="totalGoalsRate">0%</div>
+              <div class="goal-analytics-card__label">Success Rate</div>
+              <div class="goal-analytics-card__sub">completion ratio</div>
+            </div>
+          </div>
+
+          <!-- Category Breakdown -->
+          <div class="section-header" style="margin-top:var(--space-lg);">
+            <div class="section-title" style="font-size:14px;">Category Breakdown</div>
+          </div>
+          <div class="goals-category-grid" id="goalsCategoryBreakdown"></div>
+
+          <div style="font-size:12px;color:var(--text-muted);margin-top:14px;" id="goalsAnalyticsSummary">Set your
+            goals to start building insights.</div>
+        </div>
+      </div>
+
+      <!-- ══════════ NOTES ══════════ -->
+      <div id="page-notes" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📝 Notes</div>
+            <div class="page-subtitle">Capture and organize your important ideas.</div>
+          </div>
+        </div>
+
+        <!-- Add Note Button -->
+        <div style="margin-bottom:16px;">
+          <button class="btn btn-primary" onclick="openModal('addNoteModal')">+ Add Note</button>
+        </div>
+
+        <!-- Search -->
+        <div class="input-group">
+          <input type="text" id="notesSearchInput" placeholder="Search notes..." oninput="filterNotes(this.value)">
+        </div>
+
+        <!-- Notes Grid -->
+        <div id="notesList" class="notes-grid"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+     MODALS
+     ═══════════════════════════════════════════ -->
+
+  <!-- Add Task Modal -->
+  <div class="modal-overlay" id="addTaskModal">
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="addTaskTitle"
+      onsubmit="event.preventDefault(); addTask()">
+      <div class="modal-header">
+        <div class="modal-title" id="addTaskTitle">✨ Add Task</div>
+        <button type="button" class="modal-close" onclick="closeModal('addTaskModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newTaskName">Task Name</label>
+        <input type="text" id="newTaskName" class="luxury-input" placeholder="What needs to be done?" required>
+      </div>
+      <div class="input-grid-2">
+        <div class="input-group">
+          <label class="input-label" for="newTaskPriority">Priority</label>
+          <select id="newTaskPriority" class="luxury-select">
+            <option value="high">🔴 High</option>
+            <option value="medium" selected>🟡 Medium</option>
+            <option value="low">🟢 Low</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="newTaskCategory">Category</label>
+          <select id="newTaskCategory" class="luxury-select">
+            <option value="work">💼 Work</option>
+            <option value="study">📚 Study</option>
+            <option value="project">🚀 Project</option>
+            <option value="personal">❤️ Personal</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newTaskLinkedCourse">🔗 Link to Course (Optional)</label>
+        <select id="newTaskLinkedCourse" class="luxury-select">
+          <option value="">— No course linked —</option>
+        </select>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">When you complete this task, its estimated time will count toward course progress.</div>
+      </div>
+      <div class="input-group" id="newTaskEstTimeGroup" style="display:none;">
+        <label class="input-label" for="newTaskEstTime">⏱ Estimated Time (minutes)</label>
+        <input type="number" id="newTaskEstTime" class="luxury-input" placeholder="30" min="1" max="600">
+      </div>
+      <button type="submit" class="btn btn-primary aurora-glow" style="width:100%; margin-top: 15px;">Create
+        Task</button>
+    </form>
+  </div>
+
+  <!-- ═══ SLEEP INTELLIGENCE MODAL ═══ -->
+  <div class="modal-overlay" id="sleepModal">
+    <div class="modal sleep-modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <div class="modal-title">🌙 SLEEP INTELLIGENCE INPUT</div>
+        <button class="modal-close" onclick="closeSleepModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="sleep-modal-tabs">
+          <button class="sleep-tab-btn active" onclick="switchSleepTab('core', this)">CORE</button>
+          <button class="sleep-tab-btn" onclick="switchSleepTab('stages', this)">STAGES</button>
+          <button class="sleep-tab-btn" onclick="switchSleepTab('caffeine', this)">CAFFEINE</button>
+          <button class="sleep-tab-btn" onclick="switchSleepTab('lifestyle', this)">LIFESTYLE</button>
+        </div>
+
+        <!-- Tab 1: Core -->
+        <div id="sleepTab-core" class="sleep-tab-content active">
+          <div class="input-grid-2">
+            <div class="luxury-input-group">
+              <label class="luxury-label">Bedtime</label>
+              <input type="time" id="sleepBedtime" class="luxury-input">
+            </div>
+            <div class="luxury-input-group">
+              <label class="luxury-label">Wake Time</label>
+              <input type="time" id="sleepWakeTime" class="luxury-input">
+            </div>
+          </div>
+          <div class="input-grid-2">
+            <div class="luxury-input-group">
+              <label class="luxury-label">Latency (min)</label>
+              <input type="number" id="sleepLatency" class="luxury-input" placeholder="15">
+            </div>
+            <div class="luxury-input-group">
+              <label class="luxury-label">Wake-ups</label>
+              <input type="number" id="sleepWakeups" class="luxury-input" placeholder="0">
+            </div>
+          </div>
+          <div class="luxury-input-group">
+            <label class="luxury-label">Quality (1-10)</label>
+            <input type="range" id="sleepQuality" min="1" max="10" step="1" value="7"
+              style="width:100%; accent-color: var(--sleep-primary);">
+          </div>
+          <div class="input-grid-2">
+            <div class="luxury-input-group">
+              <label class="luxury-label">Morning Energy</label>
+              <select id="sleepEnergy" class="luxury-select">
+                <option value="1">1 - Exhausted</option>
+                <option value="3">3 - Tired</option>
+                <option value="5" selected>5 - Normal</option>
+                <option value="8">8 - Good</option>
+                <option value="10">Peak Performance</option>
+              </select>
+            </div>
+            <div class="luxury-input-group">
+              <label class="luxury-label">Mood</label>
+              <select id="sleepMood" class="luxury-select">
+                <option value="refreshed">Refreshed</option>
+                <option value="neutral" selected>Neutral</option>
+                <option value="groggy">Groggy</option>
+                <option value="tired">Tired</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Stages -->
+        <div id="sleepTab-stages" class="sleep-tab-content">
+          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: var(--space-md);">Professional sleep
+            staging data or AI-estimated distributions.</p>
+          <div class="input-grid-2">
+            <div class="luxury-input-group">
+              <label class="luxury-label">Light Sleep (min)</label>
+              <input type="number" id="sleepStageLight" class="luxury-input">
+            </div>
+            <div class="luxury-input-group">
+              <label class="luxury-label">Deep Sleep (min)</label>
+              <input type="number" id="sleepStageDeep" class="luxury-input">
+            </div>
+          </div>
+          <div class="input-grid-2">
+            <div class="luxury-input-group">
+              <label class="luxury-label">REM Sleep (min)</label>
+              <input type="number" id="sleepStageREM" class="luxury-input">
+            </div>
+            <div class="luxury-input-group">
+              <label class="luxury-label">Awake Time (min)</label>
+              <input type="number" id="sleepStageAwake" class="luxury-input">
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Caffeine -->
+        <div id="sleepTab-caffeine" class="sleep-tab-content">
+          <div id="caffeineList" style="margin-bottom: var(--space-md);">
+            <!-- Dynamic entries -->
+          </div>
+          <div class="input-grid-2"
+            style="background: rgba(255,255,255,0.03); padding: var(--space-md); border-radius: var(--radius-md); border: 1px dashed var(--border);">
+            <div class="luxury-input-group">
+              <label class="luxury-label">Drink Type</label>
+              <select id="caffeineType" class="luxury-select">
+                <option value="coffee">Coffee (95mg)</option>
+                <option value="espresso">Espresso (63mg)</option>
+                <option value="tea">Tea (30mg)</option>
+                <option value="energy">Energy Drink (160mg)</option>
+                <option value="soda">Soda (40mg)</option>
+                <option value="preworkout">Pre-workout (250mg)</option>
+              </select>
+            </div>
+            <div class="luxury-input-group">
+              <label class="luxury-label">Time</label>
+              <input type="time" id="caffeineTime" class="luxury-input">
+            </div>
+            <div class="luxury-input-group" style="grid-column: span 2;">
+              <button class="btn btn-primary btn-sm" style="width:100%;" onclick="addCaffeineEntry()">+ LOG
+                CAFFEINE</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Lifestyle -->
+        <div id="sleepTab-lifestyle" class="sleep-tab-content">
+          <div class="input-grid-2">
+            <div class="luxury-input-group">
+              <label class="luxury-label">Stress Level (1-10)</label>
+              <input type="number" id="sleepStress" class="luxury-input" min="1" max="10" value="5">
+            </div>
+            <div class="luxury-input-group">
+              <label class="luxury-label">Screen Time (min before bed)</label>
+              <input type="number" id="sleepScreen" class="luxury-input" placeholder="60">
+            </div>
+          </div>
+          <div class="input-grid-2">
+            <div class="luxury-input-group">
+              <label class="luxury-label">Room Temp (°C)</label>
+              <input type="number" id="sleepRoomTemp" class="luxury-input" placeholder="20" step="0.5">
+            </div>
+            <div class="luxury-input-group">
+              <label class="luxury-label">Hydration (Liters)</label>
+              <input type="number" id="sleepHydration" class="luxury-input" step="0.1" placeholder="2.5">
+            </div>
+          </div>
+          <div class="luxury-input-group">
+            <label class="luxury-label">Personal Observations</label>
+            <textarea id="sleepNotes" class="luxury-input" rows="3"
+              placeholder="Dreams, disturbances, medications..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeSleepModal()">CANCEL</button>
+        <button class="btn btn-primary" onclick="saveSleepIntelligence()">💾 SAVE ANALYSIS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Task Modal -->
+  <div class="modal-overlay" id="editTaskModal">
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="editTaskTitle"
+      onsubmit="event.preventDefault(); updateTask()">
+      <div class="modal-header">
+        <div class="modal-title" id="editTaskTitle">✏️ Edit Task</div>
+        <button type="button" class="modal-close" onclick="closeModal('editTaskModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="editTaskName">Task Name</label>
+        <input type="text" id="editTaskName" placeholder="Task title" required>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="editTaskPriority">Priority</label>
+        <select id="editTaskPriority">
+          <option value="high">🔴 High</option>
+          <option value="medium">🟡 Medium</option>
+          <option value="low">🟢 Low</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="editTaskDate">Task Date</label>
+        <input type="date" id="editTaskDate">
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;" id="editTaskDateHint"></div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Save Changes</button>
+    </form>
+  </div>
+
+  <!-- Add Course Modal -->
+  <div class="modal-overlay" id="addCourseModal">
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="addCourseTitle"
+      onsubmit="event.preventDefault(); addCourse()">
+      <div class="modal-header">
+        <div class="modal-title" id="addCourseTitle">📚 Add Course</div>
+        <button type="button" class="modal-close" onclick="closeModal('addCourseModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newCourseName">Course Name</label>
+        <input type="text" id="newCourseName" placeholder="Course name" required>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newCourseInstructor">Instructor</label>
+        <input type="text" id="newCourseInstructor" placeholder="Instructor name (optional)">
+      </div>
+      <div class="grid-2">
+        <div class="input-group">
+          <label class="input-label" for="newCourseDuration">Duration</label>
+          <input type="number" id="newCourseDuration" placeholder="Duration" min="1" required>
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="newCourseDurationUnit">Unit</label>
+          <select id="newCourseDurationUnit">
+            <option value="hours">Hours</option>
+            <option value="days">Days</option>
+            <option value="weeks">Weeks</option>
+            <option value="months">Months</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newCoursePlatform">Platform</label>
+        <input type="text" id="newCoursePlatform" placeholder="Online" value="Online" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Add Course</button>
+    </form>
+  </div>
+
+  <!-- Log Study Session Modal -->
+  <div class="modal-overlay" id="logSessionModal">
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="logSessionTitle"
+      onsubmit="event.preventDefault(); logStudySession()">
+      <div class="modal-header">
+        <div class="modal-title" id="logSessionTitle">📖 Log Study Session</div>
+        <button type="button" class="modal-close" onclick="closeModal('logSessionModal')" aria-label="Close">✕</button>
+      </div>
+      <div style="font-size:14px;font-weight:600;color:var(--learning);margin-bottom:12px;" id="logSessionCourseName"></div>
+      <input type="hidden" id="logSessionCourseId">
+      <div class="grid-2">
+        <div class="input-group">
+          <label class="input-label" for="logSessionHours">Hours</label>
+          <input type="number" id="logSessionHours" placeholder="0" min="0" max="24" value="0">
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="logSessionMinutes">Minutes</label>
+          <input type="number" id="logSessionMinutes" placeholder="30" min="0" max="59" value="30">
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="logSessionTopic">What did you cover? (optional)</label>
+        <input type="text" id="logSessionTopic" placeholder="e.g. Chapter 3 - Middleware">
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;" id="logSessionRemaining"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">✅ Log Session</button>
+    </form>
+  </div>
+
+  <!-- Add Project Modal -->
+  <div class="modal-overlay" id="addProjectModal">
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="addProjectTitle"
+      onsubmit="event.preventDefault(); addProject()">
+      <div class="modal-header">
+        <div class="modal-title" id="addProjectTitle">💻 Add Project</div>
+        <button type="button" class="modal-close" onclick="closeModal('addProjectModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newProjectName">Project Name</label>
+        <input type="text" id="newProjectName" placeholder="Project name" required>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newProjectTech">Tech Stack</label>
+        <input type="text" id="newProjectTech" placeholder="React, Node...">
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newProjectLang">Language</label>
+        <select id="newProjectLang">
+          <option value="javascript">JavaScript</option>
+          <option value="python">Python</option>
+          <option value="java">Java</option>
+          <option value="csharp">C#</option>
+          <option value="php">PHP</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="grid-2">
+        <div class="input-group">
+          <label class="input-label" for="newProjectDuration">Duration</label>
+          <input type="number" id="newProjectDuration" placeholder="Duration" min="1" required>
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="newProjectDurationUnit">Unit</label>
+          <select id="newProjectDurationUnit">
+            <option value="days">Days</option>
+            <option value="weeks" selected>Weeks</option>
+            <option value="months">Months</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Add Project</button>
+    </form>
+  </div>
+
+  <!-- Add Book Modal -->
+  <div class="modal-overlay" id="addBookModal">
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="addBookTitle"
+      onsubmit="event.preventDefault(); addBook()">
+      <div class="modal-header">
+        <div class="modal-title" id="addBookTitle">📚 Add Book</div>
+        <button type="button" class="modal-close" onclick="closeModal('addBookModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newBookName">Book Title</label>
+        <input type="text" id="newBookName" placeholder="Book title" required>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newBookAuthor">Author</label>
+        <input type="text" id="newBookAuthor" placeholder="Author name" required>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newBookPages">Total Pages</label>
+        <input type="number" id="newBookPages" placeholder="Total pages" min="1" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Add Book</button>
+    </form>
+  </div>
+
+  <!-- Update Reading Modal -->
+  <div class="modal-overlay" id="updateReadingModal">
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="updateReadingBookName"
+      onsubmit="event.preventDefault(); updateBookProgress()">
+      <div class="modal-header">
+        <div class="modal-title" id="updateReadingBookName">📖 Update Reading</div>
+        <button type="button" class="modal-close" onclick="closeModal('updateReadingModal')"
+          aria-label="Close">✕</button>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="updateCurrentPage">Current Page</label>
+        <input type="number" id="updateCurrentPage" placeholder="Current page" min="0" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Update</button>
+    </form>
+  </div>
+
+  <!-- Log Workout Modal -->
+  <div class="modal-overlay" id="logWorkoutModal">
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="logWorkoutTitle"
+      onsubmit="event.preventDefault(); logWorkout()">
+      <div class="modal-header">
+        <div class="modal-title" id="logWorkoutTitle">💪 Log Workout</div>
+        <button type="button" class="modal-close" onclick="closeModal('logWorkoutModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="workoutType">Workout Type</label>
+        <select id="workoutType" onchange="window.toggleGymRoutine()">
+          <option value="running">🏃 Running</option>
+          <option value="football">⚽ Football</option>
+          <option value="gym" selected>🏋️ Gym</option>
+          <option value="padel">🎾 Padel</option>
+          <option value="other">💪 Other</option>
+        </select>
+      </div>
+      <div class="input-group" id="gymRoutineGroup">
+        <label class="input-label" for="gymRoutine">Gym Routine / Details</label>
+        <input type="text" id="gymRoutine" list="gymRoutineSuggestions" placeholder="Push, Pull, Leg, etc.">
+        <datalist id="gymRoutineSuggestions">
+          <option value="Push"></option>
+          <option value="Pull"></option>
+          <option value="Leg"></option>
+          <option value="Upper Body"></option>
+          <option value="Lower Body"></option>
+          <option value="Full Body"></option>
+          <option value="Cardio"></option>
+        </datalist>
+      </div>
+      <div class="workout-preset-row" aria-label="Quick presets">
+        <button type="button" class="workout-preset-chip" onclick="applyWorkoutPreset('gym', 'Push', 60)">Gym Push
+          60m</button>
+        <button type="button" class="workout-preset-chip" onclick="applyWorkoutPreset('gym', 'Pull', 60)">Gym Pull
+          60m</button>
+        <button type="button" class="workout-preset-chip" onclick="applyWorkoutPreset('gym', 'Leg', 60)">Gym Leg
+          60m</button>
+        <button type="button" class="workout-preset-chip" onclick="applyWorkoutPreset('running', '', 30)">Run
+          30m</button>
+        <button type="button" class="workout-preset-chip" onclick="applyWorkoutPreset('football', '', 90)">Football
+          90m</button>
+        <button type="button" class="workout-preset-chip" onclick="applyWorkoutPreset('padel', '', 60)">Padel
+          60m</button>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="workoutDuration">Total Duration (minutes)</label>
+        <input type="number" id="workoutDuration" placeholder="Duration in minutes" min="1" required>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="workoutNotes">Notes</label>
+        <input type="text" id="workoutNotes" placeholder="Optional note">
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:12px;">Save Today Workout</button>
+    </form>
+  </div>
+
+  <!-- Profile Modal -->
+  <div class="modal-overlay" id="profileModal">
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="profileTitle"
+      onsubmit="event.preventDefault(); saveProfile()">
+      <div class="modal-header">
+        <div class="modal-title" id="profileTitle">⚙️ Profile</div>
+        <button type="button" class="modal-close" onclick="closeModal('profileModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="profile-avatar-section">
+        <button type="button" class="profile-avatar-large" id="profileAvatarBig"
+          onclick="document.getElementById('profileAvatarInput').click()" aria-label="Change photo">U</button>
+        <input type="file" id="profileAvatarInput" accept="image/*" onchange="handleAvatarChange(this)"
+          aria-hidden="true" style="display:none;">
+        <button type="button" class="change-photo-btn"
+          onclick="document.getElementById('profileAvatarInput').click()">Change Photo</button>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="profileName">Name</label>
+        <input type="text" id="profileName" placeholder="Your name" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-bottom:12px;">💾 Save</button>
+      <button type="button" class="btn btn-ghost" style="width:100%;color:var(--fitness);" onclick="handleLogout()">🚪
+        Sign Out</button>
+    </form>
+  </div>
+
+  <!-- Add Goal Modal -->
+  <div class="modal-overlay" id="addGoalModal">
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="addGoalTitle"
+      onsubmit="event.preventDefault(); addGoalFromModal()">
+      <div class="modal-header">
+        <div class="modal-title" id="addGoalTitle">🎯 Add Goal</div>
+        <button type="button" class="modal-close" onclick="closeModal('addGoalModal')" aria-label="Close">✕</button>
+      </div>
+      <input type="hidden" id="addGoalType" value="weekly">
+      <div class="input-group">
+        <label class="input-label" for="newGoalName">Goal Name</label>
+        <input type="text" id="newGoalName" placeholder="Write your goal title" required>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newGoalCategory">Category</label>
+        <select id="newGoalCategory">
+          <option value="health">🏥 Health</option>
+          <option value="learning">📚 Learning</option>
+          <option value="work">💼 Work</option>
+          <option value="personal">👤 Personal</option>
+          <option value="fitness">🏋️ Fitness</option>
+          <option value="worship">🕌 Worship</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newGoalSource">Progress Source</label>
+        <select id="newGoalSource" onchange="handleGoalSourceChange('new')">
+          <option value="manual" selected>✍️ Manual progress</option>
+          <option value="reading_pages">📚 Reading: Pages completed</option>
+          <option value="podcast_minutes">🎧 Podcast: Listening minutes</option>
+          <option value="worship_quran_pages">🕌 Worship: Quran pages</option>
+          <option value="worship_prayers">🕌 Worship: Prayers completed</option>
+          <option value="fitness_minutes">🏋️ Fitness: Minutes</option>
+          <option value="fitness_reps_exercise">🏋️ Fitness: Reps by exercise</option>
+          <option value="learning_sessions">🧠 Learning: Completed sessions</option>
+        </select>
+      </div>
+      <div class="input-group" id="newGoalSourceExerciseGroup" style="display:none;">
+        <label class="input-label" for="newGoalSourceExercise">Exercise Name</label>
+        <input type="text" id="newGoalSourceExercise" placeholder="Example: Push-ups">
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin:-6px 0 8px;" id="newGoalSourceHint"></div>
+      <div class="grid-2" style="gap:12px;">
+        <div class="input-group" style="margin:0;">
+          <label class="input-label" for="newGoalTarget">Target (number)</label>
+          <input type="number" id="newGoalTarget" placeholder="300" min="1" max="100000" value="10" required>
+        </div>
+        <div class="input-group" style="margin:0;">
+          <label class="input-label" for="newGoalUnit">Unit</label>
+          <input type="text" id="newGoalUnit" placeholder="pages, min, reps...">
+        </div>
+      </div>
+      <!-- Duration for Custom Goals -->
+      <div class="input-group" id="addGoalDurationGroup" style="display:none;">
+        <label class="input-label" for="newGoalDuration">Duration</label>
+        <select id="newGoalDuration" onchange="toggleCustomDays()">
+          <option value="month">1 Month (30 days)</option>
+          <option value="quarter">1 Quarter (90 days)</option>
+          <option value="half">6 Months (180 days)</option>
+          <option value="year">1 Year (365 days)</option>
+          <option value="custom">Custom...</option>
+        </select>
+      </div>
+      <div class="input-group" id="addGoalCustomDaysGroup" style="display:none;">
+        <label class="input-label" for="newGoalCustomDays">Custom Days</label>
+        <input type="number" id="newGoalCustomDays" placeholder="Number of days" min="1" max="3650" value="30">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Add Goal</button>
+    </form>
+  </div>
+
+  <!-- Edit Goal Modal -->
+  <div class="modal-overlay" id="editGoalModal">
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="editGoalTitle"
+      onsubmit="event.preventDefault(); updateGoalFromModal()">
+      <div class="modal-header">
+        <div class="modal-title" id="editGoalTitle">✏️ Edit Goal</div>
+        <button type="button" class="modal-close" onclick="closeModal('editGoalModal')" aria-label="Close">✕</button>
+      </div>
+      <input type="hidden" id="editGoalType" value="weekly">
+      <input type="hidden" id="editGoalIndex" value="">
+      <div class="input-group">
+        <label class="input-label" for="editGoalName">Goal Name</label>
+        <input type="text" id="editGoalName" placeholder="Write your goal title" required>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="editGoalCategory">Category</label>
+        <select id="editGoalCategory">
+          <option value="health">🏥 Health</option>
+          <option value="learning">📚 Learning</option>
+          <option value="work">💼 Work</option>
+          <option value="personal">👤 Personal</option>
+          <option value="fitness">🏋️ Fitness</option>
+          <option value="worship">🕌 Worship</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="editGoalSource">Progress Source</label>
+        <select id="editGoalSource" onchange="handleGoalSourceChange('edit')">
+          <option value="manual">✍️ Manual progress</option>
+          <option value="reading_pages">📚 Reading: Pages completed</option>
+          <option value="podcast_minutes">🎧 Podcast: Listening minutes</option>
+          <option value="worship_quran_pages">🕌 Worship: Quran pages</option>
+          <option value="worship_prayers">🕌 Worship: Prayers completed</option>
+          <option value="fitness_minutes">🏋️ Fitness: Minutes</option>
+          <option value="fitness_reps_exercise">🏋️ Fitness: Reps by exercise</option>
+          <option value="learning_sessions">🧠 Learning: Completed sessions</option>
+        </select>
+      </div>
+      <div class="input-group" id="editGoalSourceExerciseGroup" style="display:none;">
+        <label class="input-label" for="editGoalSourceExercise">Exercise Name</label>
+        <input type="text" id="editGoalSourceExercise" placeholder="Example: Push-ups">
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin:-6px 0 8px;" id="editGoalSourceHint"></div>
+      <div class="input-group">
+        <label class="input-label" for="editGoalTarget">Target (number)</label>
+        <input type="number" id="editGoalTarget" min="1" max="100000" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Save Changes</button>
+    </form>
+  </div>
+
+
+  <!-- Add Note Modal -->
+  <div class="modal-overlay" id="addNoteModal">
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="addNoteTitle"
+      onsubmit="event.preventDefault(); addNote()">
+      <div class="modal-header">
+        <div class="modal-title" id="addNoteTitle">📝 Add Note</div>
+        <button type="button" class="modal-close" onclick="closeModal('addNoteModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newNoteTitle">Title</label>
+        <input type="text" id="newNoteTitle" placeholder="Note title" required>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newNoteContent">Content</label>
+        <textarea id="newNoteContent" placeholder="Write your note..." rows="6" required></textarea>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="newNoteCategory">Category</label>
+        <select id="newNoteCategory">
+          <option value="general">General</option>
+          <option value="work">Work</option>
+          <option value="ideas">Ideas</option>
+          <option value="personal">Personal</option>
+          <option value="important">Important ⭐</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Save Note</button>
+    </form>
+  </div>
+
+  <!-- Edit Note Modal -->
+  <div class="modal-overlay" id="editNoteModal">
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="editNoteModalTitle"
+      onsubmit="event.preventDefault(); updateNote()">
+      <div class="modal-header">
+        <div class="modal-title" id="editNoteModalTitle">✏️ Edit Note</div>
+        <button type="button" class="modal-close" onclick="closeModal('editNoteModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="editNoteTitle">Title</label>
+        <input type="text" id="editNoteTitle" placeholder="Note title" required>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="editNoteContent">Content</label>
+        <textarea id="editNoteContent" placeholder="Update your note..." rows="6" required></textarea>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="editNoteCategory">Category</label>
+        <select id="editNoteCategory">
+          <option value="general">General</option>
+          <option value="work">Work</option>
+          <option value="ideas">Ideas</option>
+          <option value="personal">Personal</option>
+          <option value="important">Important ⭐</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Save Changes</button>
+    </form>
+  </div>
+
+  <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})"
+    aria-label="Scroll to top">↑</button>
+
+  <script type="module" src="appp.js"></script>
+
+  <script>
+    // ── Scroll-to-top visibility
+    const scrollBtn = document.getElementById('scrollTopBtn');
+    let scrollTicking = false;
+    const updateScrollTopVisibility = () => {
+      scrollBtn.classList.toggle('visible', window.scrollY > 400);
+      scrollTicking = false;
+    };
+    window.addEventListener('scroll', () => {
+      if (scrollTicking) return;
+      scrollTicking = true;
+      requestAnimationFrame(updateScrollTopVisibility);
+    }, { passive: true });
+    updateScrollTopVisibility();
+
+    // ── Escape key closes any open modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+      }
+    });
+
+    // ── Scroll reveal via IntersectionObserver
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // ── Re-observe reveals when pages switch
+    const pageObserver = new MutationObserver(() => {
+      document.querySelectorAll('.reveal:not(.revealed)').forEach(el => revealObserver.observe(el));
+    });
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) pageObserver.observe(mainContent, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+  </script>
+</body>
+
+</html>
