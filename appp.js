@@ -1923,8 +1923,11 @@ async function renderFitnessPage() {
     const totalMins = last30.reduce((sum, d) => sum + (d.fitness?.duration || 0), 0);
     
     safeSetText('weekWorkouts', weekWorkouts);
+    safeSetText('weekSessions', `${weekWorkouts} sessions`);
     safeSetText('monthWorkouts', monthWorkouts);
+    safeSetText('monthSessions', `${monthWorkouts} sessions`);
     safeSetText('totalFitnessTime', totalMins);
+    safeSetText('fitWeekBadge', `${weekWorkouts} SESSIONS`);
     
     // Streak
     let streak = 0;
@@ -1978,6 +1981,7 @@ async function renderFitnessPage() {
     // Workout Log
     const logEl = document.getElementById('workoutLog');
     const logs = last30.filter(d => d.fitness?.done).slice(0, 10);
+    safeSetText('fitLogCount', `${logs.length} ENTRIES`);
     if (logEl) {
         if (logs.length === 0) {
             logEl.innerHTML = '<div class="empty-state">No workouts logged yet.</div>';
@@ -3728,3 +3732,171 @@ async function renderNotesPage() {
 
 window.filterNotes = (q) => { ensureNotesDefaults(); const list = document.getElementById('notesList'); if (!list) return; const notes = (userProfile.notes || []).filter(n => !q || n.title?.toLowerCase().includes(q.toLowerCase()) || n.content?.toLowerCase().includes(q.toLowerCase())); list.innerHTML = notes.length === 0 ? '<div class="empty-state"><div class="empty-state-text">No matching notes</div></div>' : notes.map((n, i) => `<div class="card" style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;"><div style="flex:1;"><div style="font-weight:600;">${sanitizeInput(n.title)}</div><div style="font-size:12px;color:var(--text-muted);margin-top:4px;">${renderSafeMultiline(n.content || '')}</div></div><button onclick="deleteNote(${i})" style="background:none;border:none;cursor:pointer;color:var(--text-muted);">🗑</button></div></div>`).join(''); };
 window.deleteNote = async (i) => { if (!confirm('Delete?')) return; ensureNotesDefaults(); userProfile.notes.splice(i, 1); await saveUserData({ notes: userProfile.notes }); await renderNotesPage(); showToast('Deleted'); };
+
+// ─── SLEEP INTELLIGENCE (NO-WEARABLE AI ESTIMATION) ───
+window.openSleepModal = () => openModal('sleepModal');
+window.closeSleepModal = () => closeModal('sleepModal');
+
+window.switchSleepTab = (tab, btn) => {
+    document.querySelectorAll('.sleep-tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.sleep-tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('sleepTab-' + tab).style.display = 'block';
+    btn.classList.add('active');
+};
+
+window.saveSleepIntelligence = async () => {
+    try {
+        // Core
+        const bedtime = document.getElementById('sleepBedtime').value;
+        const waketime = document.getElementById('sleepWakeTime').value;
+        const latency = parseInt(document.getElementById('sleepLatency').value) || 0;
+        const wakeups = parseInt(document.getElementById('sleepWakeups').value) || 0;
+        const quality = parseInt(document.getElementById('sleepQuality').value) || 5;
+        const energy = parseInt(document.getElementById('sleepEnergy').value) || 5;
+        const mood = document.getElementById('sleepMood').value;
+
+        if (!bedtime || !waketime) throw new Error("Bedtime and Wake Time are required.");
+
+        // Recovery
+        const stress = parseInt(document.getElementById('sleepStress').value) || 5;
+        const screen = parseInt(document.getElementById('sleepScreen').value) || 0;
+        const roomTemp = parseFloat(document.getElementById('sleepRoomTemp').value) || 20;
+        const pain = parseInt(document.getElementById('sleepPain').value) || 1;
+        const illness = document.getElementById('sleepIllness').value;
+        const notes = document.getElementById('sleepNotes').value;
+
+        // Behavior
+        const exercised = document.getElementById('sleepExercise').value === 'yes';
+        const exerciseInt = parseInt(document.getElementById('sleepExerciseIntensity').value) || 5;
+        const nap = parseInt(document.getElementById('sleepNap').value) || 0;
+        const heavyMeal = document.getElementById('sleepHeavyMeal').value === 'yes';
+        const hydration = parseFloat(document.getElementById('sleepHydration').value) || 0;
+
+        // Supplements
+        const caffeineAmount = parseInt(document.getElementById('sleepCaffeineAmount').value) || 0;
+        const magnesium = document.getElementById('sleepMagnesium').value === 'yes';
+        const vitD = document.getElementById('sleepVitaminD').value === 'yes';
+        const sleepSupps = document.getElementById('sleepSupplements').value === 'yes';
+
+        // Calculate total duration in minutes
+        const bt = new Date(`2000-01-01T${bedtime}`);
+        let wt = new Date(`2000-01-01T${waketime}`);
+        if (wt < bt) wt = new Date(`2000-01-02T${waketime}`);
+        let totalDuration = Math.round((wt - bt) / 60000) - latency;
+        if (totalDuration < 0) totalDuration = 0;
+
+        // AI ESTIMATIONS
+        let deepPct = 15; // Base 15%
+        let remPct = 20;  // Base 20%
+        let score = 50;   // Base Score
+
+        // Deep Sleep Modifiers
+        if (exercised && exerciseInt > 5) deepPct += 5;
+        if (magnesium || sleepSupps) deepPct += 3;
+        if (roomTemp >= 16 && roomTemp <= 20) deepPct += 2;
+        if (screen > 60) deepPct -= 3;
+        if (heavyMeal) deepPct -= 2;
+        if (pain > 3) deepPct -= 5;
+        
+        // REM Sleep Modifiers
+        if (quality >= 8) remPct += 5;
+        if (stress > 6) remPct -= 5;
+        if (caffeineAmount > 100) remPct -= 4;
+        if (wakeups > 2) remPct -= 3;
+        if (illness !== 'none') remPct -= 5;
+
+        // Bounding
+        deepPct = Math.max(5, Math.min(30, deepPct));
+        remPct = Math.max(5, Math.min(35, remPct));
+        
+        const deepMin = Math.round((deepPct / 100) * totalDuration);
+        const remMin = Math.round((remPct / 100) * totalDuration);
+        const lightMin = Math.max(0, totalDuration - deepMin - remMin - (wakeups * 5));
+
+        // Score Modifiers
+        score += (quality - 5) * 4;
+        score += (energy - 5) * 4;
+        if (totalDuration >= 420) score += 10;
+        else if (totalDuration < 360) score -= 15;
+        score -= (wakeups * 2);
+        score -= (stress * 1.5);
+        if (illness === 'severe') score -= 15;
+        if (hydration >= 2) score += 5;
+        
+        score = Math.max(1, Math.min(100, Math.round(score)));
+
+        const efficiency = Math.max(1, Math.min(100, Math.round((totalDuration / (totalDuration + latency + (wakeups * 5))) * 100)));
+        const sleepDebt = Math.max(0, 480 - totalDuration); // Target 8 hrs
+
+        todayData.sleep = {
+            done: true,
+            bedtime, waketime, latency, wakeups, quality, energy, mood,
+            stress, screen, roomTemp, pain, illness, notes,
+            exercised, exerciseInt, nap, heavyMeal, hydration,
+            caffeineAmount, magnesium, vitD, sleepSupps,
+            estimations: {
+                totalDuration, deepMin, remMin, lightMin, score, efficiency, sleepDebt
+            }
+        };
+
+        await saveTodayData({ sleep: todayData.sleep });
+        closeSleepModal();
+        renderSleepPage();
+        showToast('🌙 Sleep Intelligence logged successfully');
+    } catch (e) {
+        showToast(e.message, 'error');
+    }
+};
+
+window.renderSleepPage = () => {
+    if (!todayData.sleep || !todayData.sleep.estimations) return;
+    const data = todayData.sleep;
+    const est = data.estimations;
+    
+    // Core Stats
+    safeSetText('sleepScoreVal', est.score);
+    safeSetText('sleepAvgDuration', `${Math.floor(est.totalDuration/60)}h ${est.totalDuration%60}m`);
+    safeSetText('sleepAvgQuality', `${data.quality}/10`);
+    safeSetText('sleepEfficiency', `${est.efficiency}%`);
+    safeSetText('sleepConsistency', data.energy >= 7 ? 'High' : 'Moderate');
+
+    // Ring Color
+    const ring = document.getElementById('sleepScoreRing');
+    if (ring) {
+        let color = 'var(--danger)';
+        if (est.score >= 80) color = 'var(--success)';
+        else if (est.score >= 60) color = 'var(--warning)';
+        
+        ring.style.stroke = color;
+        const dashOffset = 565.48 - (565.48 * (est.score / 100));
+        ring.style.strokeDashoffset = dashOffset;
+    }
+
+    // AI Insights
+    safeSetText('sleepStatus', est.score >= 80 ? 'OPTIMIZED' : est.score >= 60 ? 'RECOVERING' : 'COMPROMISED');
+    safeSetText('sleepGreeting', est.score >= 80 ? 'Peak Readiness Achieved' : 'Moderate Recovery Sensed');
+    
+    let insight = `Your AI-estimated Sleep Debt is ${Math.floor(est.sleepDebt/60)}h ${est.sleepDebt%60}m. `;
+    if (data.screen > 60) insight += "High screen time likely reduced your Deep Sleep. ";
+    if (data.stress > 6) insight += "Elevated stress is impacting your REM cycles. ";
+    if (data.heavyMeal) insight += "Heavy meals before bed lower sleep efficiency. ";
+    if (data.magnesium || data.sleepSupps) insight += "Supplements are actively aiding your recovery. ";
+    safeSetText('sleepMainInsight', insight);
+
+    // Architecture List
+    const stagesList = document.getElementById('sleepStagesList');
+    if (stagesList) {
+        stagesList.innerHTML = `
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Deep Sleep</span> <b>${Math.floor(est.deepMin/60)}h ${est.deepMin%60}m</b></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>REM Sleep</span> <b>${Math.floor(est.remMin/60)}h ${est.remMin%60}m</b></div>
+            <div style="display:flex; justify-content:space-between;"><span>Light Sleep</span> <b>${Math.floor(est.lightMin/60)}h ${est.lightMin%60}m</b></div>
+        `;
+    }
+
+    // Factors
+    safeSetText('caffeineBodyLevel', data.caffeineAmount > 0 ? `${data.caffeineAmount} mg` : '0 mg');
+    safeSetText('caffeineInsight', data.caffeineAmount > 100 ? "High caffeine intake is suppressing REM sleep." : "Caffeine levels are optimal.");
+    
+    safeSetText('hydrationLevel', `${data.hydration || 0} L`);
+    safeSetText('hydrationInsight', (data.hydration || 0) >= 2 ? "Optimal hydration supporting cardiovascular recovery." : "Low hydration may increase waking heart rate.");
+};
