@@ -2255,9 +2255,9 @@
       <div class="modal-body">
         <div class="sleep-modal-tabs">
           <button class="sleep-tab-btn active" onclick="switchSleepTab('core', this)">CORE</button>
-          <button class="sleep-tab-btn" onclick="switchSleepTab('stages', this)">STAGES</button>
-          <button class="sleep-tab-btn" onclick="switchSleepTab('caffeine', this)">CAFFEINE</button>
-          <button class="sleep-tab-btn" onclick="switchSleepTab('lifestyle', this)">LIFESTYLE</button>
+          <button class="sleep-tab-btn" onclick="switchSleepTab('recovery', this)">RECOVERY</button>
+          <button class="sleep-tab-btn" onclick="switchSleepTab('behavior', this)">BEHAVIOR</button>
+          <button class="sleep-tab-btn" onclick="switchSleepTab('supplements', this)">SUPPLEMENTS</button>
         </div>
 
         <!-- Tab 1: Core -->
@@ -2274,107 +2274,49 @@
           </div>
           <div class="input-grid-2">
             <div class="luxury-input-group">
-              <label class="luxury-label">Latency (min)</label>
-              <input type="number" id="sleepLatency" class="luxury-input" placeholder="15">
+              <label class="luxury-label">Time to fall asleep (min)</label>
+              <input type="number" id="sleepLatency" class="luxury-input" placeholder="15" min="0">
             </div>
             <div class="luxury-input-group">
-              <label class="luxury-label">Wake-ups</label>
-              <input type="number" id="sleepWakeups" class="luxury-input" placeholder="0">
+              <label class="luxury-label">Night Awakenings</label>
+              <input type="number" id="sleepWakeups" class="luxury-input" placeholder="0" min="0">
             </div>
           </div>
           <div class="luxury-input-group">
-            <label class="luxury-label">Quality (1-10)</label>
-            <input type="range" id="sleepQuality" min="1" max="10" step="1" value="7"
-              style="width:100%; accent-color: var(--sleep-primary);">
+            <label class="luxury-label">Sleep Quality (1-10)</label>
+            <input type="range" id="sleepQuality" min="1" max="10" step="1" value="7" style="width:100%; accent-color: var(--sleep-primary);">
+            <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); margin-top:4px;">
+              <span>1 (Terrible)</span><span>10 (Perfect)</span>
+            </div>
           </div>
           <div class="input-grid-2">
             <div class="luxury-input-group">
-              <label class="luxury-label">Morning Energy</label>
-              <select id="sleepEnergy" class="luxury-select">
-                <option value="1">1 - Exhausted</option>
-                <option value="3">3 - Tired</option>
-                <option value="5" selected>5 - Normal</option>
-                <option value="8">8 - Good</option>
-                <option value="10">Peak Performance</option>
-              </select>
+              <label class="luxury-label">Morning Energy (1-10)</label>
+              <input type="number" id="sleepEnergy" class="luxury-input" min="1" max="10" value="7">
             </div>
             <div class="luxury-input-group">
-              <label class="luxury-label">Mood</label>
+              <label class="luxury-label">Morning Mood</label>
               <select id="sleepMood" class="luxury-select">
-                <option value="refreshed">Refreshed</option>
-                <option value="neutral" selected>Neutral</option>
+                <option value="excellent">Excellent</option>
+                <option value="good" selected>Good</option>
+                <option value="neutral">Neutral</option>
                 <option value="groggy">Groggy</option>
-                <option value="tired">Tired</option>
+                <option value="terrible">Terrible</option>
               </select>
             </div>
           </div>
         </div>
 
-        <!-- Tab 2: Stages -->
-        <div id="sleepTab-stages" class="sleep-tab-content">
-          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: var(--space-md);">Professional sleep
-            staging data or AI-estimated distributions.</p>
-          <div class="input-grid-2">
-            <div class="luxury-input-group">
-              <label class="luxury-label">Light Sleep (min)</label>
-              <input type="number" id="sleepStageLight" class="luxury-input">
-            </div>
-            <div class="luxury-input-group">
-              <label class="luxury-label">Deep Sleep (min)</label>
-              <input type="number" id="sleepStageDeep" class="luxury-input">
-            </div>
-          </div>
-          <div class="input-grid-2">
-            <div class="luxury-input-group">
-              <label class="luxury-label">REM Sleep (min)</label>
-              <input type="number" id="sleepStageREM" class="luxury-input">
-            </div>
-            <div class="luxury-input-group">
-              <label class="luxury-label">Awake Time (min)</label>
-              <input type="number" id="sleepStageAwake" class="luxury-input">
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 3: Caffeine -->
-        <div id="sleepTab-caffeine" class="sleep-tab-content">
-          <div id="caffeineList" style="margin-bottom: var(--space-md);">
-            <!-- Dynamic entries -->
-          </div>
-          <div class="input-grid-2"
-            style="background: rgba(255,255,255,0.03); padding: var(--space-md); border-radius: var(--radius-md); border: 1px dashed var(--border);">
-            <div class="luxury-input-group">
-              <label class="luxury-label">Drink Type</label>
-              <select id="caffeineType" class="luxury-select">
-                <option value="coffee">Coffee (95mg)</option>
-                <option value="espresso">Espresso (63mg)</option>
-                <option value="tea">Tea (30mg)</option>
-                <option value="energy">Energy Drink (160mg)</option>
-                <option value="soda">Soda (40mg)</option>
-                <option value="preworkout">Pre-workout (250mg)</option>
-              </select>
-            </div>
-            <div class="luxury-input-group">
-              <label class="luxury-label">Time</label>
-              <input type="time" id="caffeineTime" class="luxury-input">
-            </div>
-            <div class="luxury-input-group" style="grid-column: span 2;">
-              <button class="btn btn-primary btn-sm" style="width:100%;" onclick="addCaffeineEntry()">+ LOG
-                CAFFEINE</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 4: Lifestyle -->
-        <div id="sleepTab-lifestyle" class="sleep-tab-content">
+        <!-- Tab 2: Recovery Factors -->
+        <div id="sleepTab-recovery" class="sleep-tab-content">
           <div class="input-grid-2">
             <div class="luxury-input-group">
               <label class="luxury-label">Stress Level (1-10)</label>
               <input type="number" id="sleepStress" class="luxury-input" min="1" max="10" value="5">
             </div>
             <div class="luxury-input-group">
-              <label class="luxury-label">Screen Time (min before bed)</label>
-              <input type="number" id="sleepScreen" class="luxury-input" placeholder="60">
+              <label class="luxury-label">Screen Time before bed (min)</label>
+              <input type="number" id="sleepScreen" class="luxury-input" placeholder="60" min="0">
             </div>
           </div>
           <div class="input-grid-2">
@@ -2383,14 +2325,107 @@
               <input type="number" id="sleepRoomTemp" class="luxury-input" placeholder="20" step="0.5">
             </div>
             <div class="luxury-input-group">
-              <label class="luxury-label">Hydration (Liters)</label>
-              <input type="number" id="sleepHydration" class="luxury-input" step="0.1" placeholder="2.5">
+              <label class="luxury-label">Pain/Discomfort (1-10)</label>
+              <input type="number" id="sleepPain" class="luxury-input" min="1" max="10" value="1">
             </div>
           </div>
           <div class="luxury-input-group">
-            <label class="luxury-label">Personal Observations</label>
-            <textarea id="sleepNotes" class="luxury-input" rows="3"
-              placeholder="Dreams, disturbances, medications..."></textarea>
+            <label class="luxury-label">Illness Symptoms</label>
+            <select id="sleepIllness" class="luxury-select">
+              <option value="none" selected>None</option>
+              <option value="mild">Mild (cold, headache)</option>
+              <option value="severe">Severe (fever, flu)</option>
+            </select>
+          </div>
+          <div class="luxury-input-group">
+            <label class="luxury-label">Recovery Notes</label>
+            <textarea id="sleepNotes" class="luxury-input" rows="2" placeholder="Dreams, specific pains, noise..."></textarea>
+          </div>
+        </div>
+
+        <!-- Tab 3: Daily Behavior -->
+        <div id="sleepTab-behavior" class="sleep-tab-content">
+          <div class="input-grid-2">
+            <div class="luxury-input-group">
+              <label class="luxury-label">Exercised Today?</label>
+              <select id="sleepExercise" class="luxury-select">
+                <option value="no">No</option>
+                <option value="yes" selected>Yes</option>
+              </select>
+            </div>
+            <div class="luxury-input-group">
+              <label class="luxury-label">Exercise Intensity (1-10)</label>
+              <input type="number" id="sleepExerciseIntensity" class="luxury-input" min="1" max="10" value="5">
+            </div>
+          </div>
+          <div class="input-grid-2">
+            <div class="luxury-input-group">
+              <label class="luxury-label">Exercise Time</label>
+              <select id="sleepExerciseTime" class="luxury-select">
+                <option value="none">Did not exercise</option>
+                <option value="morning">Morning</option>
+                <option value="afternoon" selected>Afternoon</option>
+                <option value="evening">Evening</option>
+              </select>
+            </div>
+            <div class="luxury-input-group">
+              <label class="luxury-label">Nap Duration (min)</label>
+              <input type="number" id="sleepNap" class="luxury-input" placeholder="0" min="0">
+            </div>
+          </div>
+          <div class="input-grid-2">
+            <div class="luxury-input-group">
+              <label class="luxury-label">Last Meal Time</label>
+              <input type="time" id="sleepMealTime" class="luxury-input">
+            </div>
+            <div class="luxury-input-group">
+              <label class="luxury-label">Heavy Meal Before Bed?</label>
+              <select id="sleepHeavyMeal" class="luxury-select">
+                <option value="no" selected>No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+          </div>
+          <div class="luxury-input-group">
+            <label class="luxury-label">Hydration (Liters)</label>
+            <input type="number" id="sleepHydration" class="luxury-input" step="0.1" placeholder="2.5">
+          </div>
+        </div>
+
+        <!-- Tab 4: Stimulants & Supplements -->
+        <div id="sleepTab-supplements" class="sleep-tab-content">
+          <div class="input-grid-2">
+            <div class="luxury-input-group">
+              <label class="luxury-label">Caffeine Intake (mg or cups)</label>
+              <input type="number" id="sleepCaffeineAmount" class="luxury-input" placeholder="200" min="0">
+            </div>
+            <div class="luxury-input-group">
+              <label class="luxury-label">Last Caffeine Time</label>
+              <input type="time" id="sleepCaffeineTime" class="luxury-input">
+            </div>
+          </div>
+          <div class="input-grid-2">
+            <div class="luxury-input-group">
+              <label class="luxury-label">Magnesium Taken?</label>
+              <select id="sleepMagnesium" class="luxury-select">
+                <option value="no" selected>No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+            <div class="luxury-input-group">
+              <label class="luxury-label">Vitamin D Taken?</label>
+              <select id="sleepVitaminD" class="luxury-select">
+                <option value="no" selected>No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+          </div>
+          <div class="luxury-input-group">
+            <label class="luxury-label">Sleep Supplements (Melatonin, etc.)</label>
+            <select id="sleepSupplements" class="luxury-select">
+              <option value="no" selected>No</option>
+              <option value="yes">Yes</option>
+            </select>
           </div>
         </div>
       </div>
