@@ -243,7 +243,23 @@ function ensureWorkLibraryDefaults() {
 
 function ensureFitnessDefaults(target) {
     if (!userProfile) userProfile = {};
-    if (!target.fitness) target.fitness = { done: false, duration: 0, type: '', notes: '' };
+    if (!target.fitness) target.fitness = { done: false, duration: 0, type: '', notes: '', plan: '', workouts: [] };
+    if (typeof target.fitness.plan !== 'string') target.fitness.plan = '';
+    
+    if (!target.fitness.workouts) {
+        target.fitness.workouts = [];
+        if (target.fitness.type) {
+            target.fitness.workouts.push({
+                id: Date.now().toString(),
+                type: target.fitness.type,
+                duration: target.fitness.duration,
+                notes: target.fitness.notes || '',
+                routine: target.fitness.routine || '',
+                done: target.fitness.done || false
+            });
+        }
+    }
+
     if (!target.fitness.metrics) {
         target.fitness.metrics = userProfile?.fitness?.metrics || {
             weight: 0, height: 0, age: 0, gender: 'male', activity: '1.55',
@@ -253,6 +269,29 @@ function ensureFitnessDefaults(target) {
     if (!userProfile.fitness) userProfile.fitness = { metrics: target.fitness.metrics, weightHistory: [] };
     if (!Array.isArray(userProfile.fitness.weightHistory)) userProfile.fitness.weightHistory = [];
 }
+
+function syncFitnessSummary(fitness) {
+    if (!fitness.workouts) return;
+    const doneWorkouts = fitness.workouts.filter(w => w.done);
+    fitness.done = doneWorkouts.length > 0;
+    
+    if (fitness.done) {
+        fitness.duration = doneWorkouts.reduce((sum, w) => sum + (parseInt(w.duration)||0), 0);
+        fitness.type = doneWorkouts[0].type;
+        fitness.routine = doneWorkouts[0].routine;
+    } else if (fitness.workouts.length > 0) {
+        fitness.duration = fitness.workouts.reduce((sum, w) => sum + (parseInt(w.duration)||0), 0);
+        fitness.type = fitness.workouts[0].type;
+        fitness.routine = fitness.workouts[0].routine;
+    } else {
+        fitness.duration = 0;
+        fitness.type = '';
+        fitness.routine = '';
+        fitness.done = false;
+    }
+}
+
+
 
 // ─── Metrics Calculations ───
 function calculateBMI(weight, heightCm) {
@@ -493,7 +532,7 @@ function updateUserUI() {
     const name = currentUser.displayName || 'User';
     const sidebarNameEl = document.getElementById('sidebarName');
     if (sidebarNameEl) sidebarNameEl.textContent = name;
-    
+
     const dashNameEl = document.getElementById('dashName');
     if (dashNameEl) dashNameEl.textContent = name;
 
@@ -670,19 +709,117 @@ async function renderDashboard() {
     `).join('');
     }
 
+    // Unified Master Agenda
+    const agendaList = document.getElementById('todayAgendaList');
+    const agendaSummary = document.getElementById('todayAgendaSummary');
+    const agendaBadge = document.getElementById('todayAgendaProgressBadge');
+    
+    if (agendaList) {
+        let agendaItems = [];
+        
+        // 1. Manual Tasks
+        tasks.forEach(t => {
+            agendaItems.push({
+                title: t.name,
+                done: t.done,
+                icon: '💼',
+                type: 'task',
+                onClick: "switchPage('work', document.querySelector('.nav-item.work'))"
+            });
+        });
+        
+        // 2. Worship (Fard Prayers)
+        const prayersRemaining = 5 - worshipDone;
+        if (prayersRemaining > 0) {
+            agendaItems.push({
+                title: `${prayersRemaining} Prayers remaining`,
+                done: false,
+                icon: '🕌',
+                type: 'worship',
+                onClick: "switchPage('worship', document.querySelector('.nav-item.worship'))"
+            });
+        } else {
+            agendaItems.push({
+                title: 'All 5 prayers completed',
+                done: true,
+                icon: '🕌',
+                type: 'worship',
+                onClick: "switchPage('worship', document.querySelector('.nav-item.worship'))"
+            });
+        }
+
+        // 3. Fitness Plan
+        if (todayData.fitness?.workouts && todayData.fitness.workouts.length > 0) {
+            todayData.fitness.workouts.forEach(w => {
+                const title = w.routine ? `${w.type.toUpperCase()} (${w.routine})` : w.type.toUpperCase();
+                agendaItems.push({
+                    title: w.done ? `${title} (Completed)` : title,
+                    done: w.done,
+                    icon: '🏋️',
+                    type: 'fitness',
+                    onClick: "switchPage('fitness', document.querySelector('.nav-item.fitness'))"
+                });
+            });
+        } else if (!todayData.fitness?.done) {
+            agendaItems.push({
+                title: 'No workout planned',
+                done: false,
+                icon: '🏋️',
+                type: 'fitness',
+                onClick: "switchPage('fitness', document.querySelector('.nav-item.fitness'))"
+            });
+        }
+
+        // 4. Reading
+        if (pagesRead < readingGoal) {
+            agendaItems.push({
+                title: `Read ${readingGoal - pagesRead} more pages`,
+                done: false,
+                icon: '📚',
+                type: 'reading',
+                onClick: "switchPage('reading', document.querySelector('.nav-item.reading'))"
+            });
+        } else {
+            agendaItems.push({
+                title: `Reading Goal Met (${pagesRead} pages)`,
+                done: true,
+                icon: '📚',
+                type: 'reading',
+                onClick: "switchPage('reading', document.querySelector('.nav-item.reading'))"
+            });
+        }
+
+        const totalAgenda = agendaItems.length;
+        const doneAgenda = agendaItems.filter(i => i.done).length;
+        const agendaProgress = totalAgenda > 0 ? Math.round((doneAgenda / totalAgenda) * 100) : 0;
+        
+        if (agendaBadge) agendaBadge.textContent = `${agendaProgress}% done`;
+        if (agendaSummary) agendaSummary.textContent = `You have ${totalAgenda} items on your master list today.`;
+        
+        agendaList.innerHTML = agendaItems.map(item => `
+            <div class="task-item ${item.done ? 'done' : ''}" style="cursor:pointer;" onclick="${item.onClick}">
+                <div class="task-dot" style="font-size:16px; display:flex; align-items:center; justify-content:center; background:none; border:none;">
+                    ${item.done ? '✅' : item.icon}
+                </div>
+                <span class="task-name" style="flex:1; margin-left:10px;">${item.title}</span>
+                <span class="badge" style="font-size:10px;">${item.type}</span>
+            </div>
+        `).join('');
+    }
+
     const dashLearningEl = document.getElementById('dashLearningToday');
     if (dashLearningEl) {
         const courseMetrics = getWorkMetrics(todayData).courseMetrics || [];
-        const activeCourse = courseMetrics.filter(c => c.calculatedProgress < 100).sort((a,b) => b.calculatedProgress - a.calculatedProgress)[0];
+        const activeCourse = courseMetrics.filter(c => c.calculatedProgress < 100).sort((a, b) => b.calculatedProgress - a.calculatedProgress)[0];
         const todaySessions = todayData.learning?.sessions || [];
         const todayStudyMins = todaySessions.reduce((s, x) => s + (x.minutes || 0), 0);
-        
+
         let html = '';
         if (todaySessions.length > 0) {
             html = `
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;">
               <div style="font-weight:600;font-size:14px;">📖 ${todaySessions.length} session${todaySessions.length !== 1 ? 's' : ''} today</div>
-              <span class="badge" style="background:rgba(14,165,233,0.12);color:var(--learning);">${Math.floor(todayStudyMins/60)}h ${todayStudyMins%60}m</span>
+              <span class="badge" style="background:rgba(14,165,233,0.12);color:var(--learning);">${Math.floor(todayStudyMins / 60)}h ${todayStudyMins % 60}m</span>
             </div>
             ${todaySessions.slice(0, 3).map(s => `<div style="font-size:12px;color:var(--text-muted);padding:2px 0;">${sanitizeInput(s.courseName || 'Study')} — ${s.minutes}min</div>`).join('')}`;
         } else if (activeCourse) {
@@ -818,7 +955,7 @@ function renderWorshipPage() {
 
     const prayersDoneCount = document.getElementById('prayersDoneCount');
     if (prayersDoneCount) prayersDoneCount.textContent = `${metrics.fardDone} / 5`;
-    
+
     const placeStats = document.getElementById('prayersPlaceStats');
     if (placeStats) {
         const homeCount = metrics.fardDone - metrics.mosquePrayers;
@@ -919,7 +1056,7 @@ window.quickTogglePrayer = async (key) => {
 window.setPrayerLocation = async (key, location) => {
     if (!todayData) return;
     ensureWorshipDefaults(todayData);
-    
+
     const prevLoc = todayData.worship.prayerLocation[key];
     if (prevLoc === location) return;
 
@@ -936,7 +1073,7 @@ window.setPrayerLocation = async (key, location) => {
     if (!todayData.worship[key]) todayData.worship[key] = true;
 
     await saveTodayData({ worship: todayData.worship });
-    
+
     // Slight delay for animation smoothness
     setTimeout(() => {
         renderWorshipPage();
@@ -968,7 +1105,7 @@ window.saveQiyamRakaat = async (val) => {
     const rakaat = Math.max(0, parseInt(val) || 0);
     todayData.worship.qiyam.rakaat = rakaat;
     todayData.worship.qiyam.done = rakaat > 0;
-    
+
     await saveTodayData({ worship: todayData.worship });
     renderWorshipPage();
     renderDashboard();
@@ -1010,7 +1147,7 @@ function renderWorkPage() {
 
     const metrics = getWorkMetrics(todayData);
     const tasks = todayData.work?.tasks || [];
-    
+
     // Update Dashboard & KPI Cards
     const elements = {
         'workTasksProgress': `${metrics.taskProgress}%`,
@@ -1030,7 +1167,7 @@ function renderWorkPage() {
 
     // Active Tab Logic
     const activeTab = document.querySelector('.tab-btn.active')?.dataset.workNavBtn || 'tasks';
-    
+
     if (activeTab === 'tasks') {
         renderWorkTasks(tasks);
     } else if (activeTab === 'projects') {
@@ -1069,7 +1206,7 @@ function renderWorkTasks(tasks) {
         medium: { label: 'MED', class: 'medium-priority', color: '#FFB800' },
         low: { label: 'LOW', class: 'low-priority', color: '#00D1FF' }
     };
-    
+
     const categoryIcons = {
         work: '💼', study: '📚', project: '🚀', personal: '❤️'
     };
@@ -1078,7 +1215,7 @@ function renderWorkTasks(tasks) {
         const conf = priorityConfig[t.priority] || priorityConfig.medium;
         const catIcon = categoryIcons[t.category] || '📌';
         const catName = t.category ? t.category.charAt(0).toUpperCase() + t.category.slice(1) : 'Task';
-        
+
         return `
             <div class="task-item ${conf.class} kinetic-reveal" data-id="${t.id}">
                 <div class="task-checkbox ${t.done ? 'checked' : ''}" onclick="toggleTask(${t.id})">
@@ -1346,7 +1483,7 @@ window.setWorkTab = (tab) => {
     document.querySelectorAll('[data-work-nav-btn]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.workNavBtn === tab);
     });
-    
+
     // Hide all containers
     const ids = ['tasksList', 'projectsList', 'workStatsContent'];
     ids.forEach(id => {
@@ -1355,9 +1492,9 @@ window.setWorkTab = (tab) => {
     });
 
     // Show active container
-    const containerId = tab === 'tasks' ? 'tasksList' : 
-                       tab === 'projects' ? 'projectsList' : 'workStatsContent';
-    
+    const containerId = tab === 'tasks' ? 'tasksList' :
+        tab === 'projects' ? 'projectsList' : 'workStatsContent';
+
     const container = document.getElementById(containerId);
     if (container) container.hidden = false;
 
@@ -1530,11 +1667,11 @@ window.deleteProject = async (projectId) => {
 window.setStudyCategory = (cat) => {
     ensureWorkDefaults(todayData);
     todayData.work.pomodoroCategory = cat;
-    
+
     document.querySelectorAll('[data-category-btn]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.categoryBtn === cat);
     });
-    
+
     showToast(`Focus mode: ${cat.toUpperCase()} 🎯`);
 };
 
@@ -1620,7 +1757,7 @@ function updateWorkTimer() {
     const now = new Date();
     const h = now.getHours(), m = now.getMinutes();
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    
+
     const badge = document.getElementById('workTimeBadge');
     if (badge) badge.textContent = timeStr;
 
@@ -1658,10 +1795,14 @@ async function renderReadingPage() {
 
     const pagesRead = todayData.reading?.pagesRead || 0;
     const goal = userProfile?.goals?.readingPages || 20;
+    const remaining = Math.max(0, goal - pagesRead);
     const pct = Math.min((pagesRead / goal) * 100, 100);
 
     document.getElementById('todayPagesVal').textContent = pagesRead;
     document.getElementById('readingGoalVal').textContent = goal;
+    const remainingEl = document.getElementById('readingRemainingVal');
+    if (remainingEl) remainingEl.textContent = remaining;
+    
     document.getElementById('readingProgressBar').style.width = pct + '%';
     const goalInputEl = document.getElementById('readingGoalInput');
     if (goalInputEl) goalInputEl.value = goal;
@@ -1711,7 +1852,10 @@ async function renderReadingPage() {
     renderBooksLibrary();
 
     const monthPages = (await getLastNDays(30)).reduce((sum, d) => sum + (d.reading?.pagesRead || 0), 0);
+    const avgPages = Math.round(monthPages / 30);
     document.getElementById('monthPagesVal').textContent = monthPages;
+    const avgEl = document.getElementById('readingMonthAvgVal');
+    if (avgEl) avgEl.textContent = avgPages;
 }
 
 function renderBooksLibrary() {
@@ -1748,6 +1892,96 @@ function renderBooksLibrary() {
 }
 
 window.openAddBook = () => openModal('addBookModal');
+
+// ─── READING DASHBOARD ACTIONS ───
+
+window.saveReadingGoal = async () => {
+    const goalInput = document.getElementById('readingGoalInput');
+    if (!goalInput) return;
+    const newGoal = parseInt(goalInput.value);
+    if (!newGoal || newGoal < 1) {
+        showToast('Please enter a valid goal', 'error');
+        return;
+    }
+    
+    if (!userProfile) userProfile = {};
+    if (!userProfile.goals) userProfile.goals = {};
+    userProfile.goals.readingPages = newGoal;
+    
+    await saveUserData({ goals: userProfile.goals });
+    showToast('📖 Reading goal updated!');
+    await renderReadingPage();
+    await renderDashboard();
+};
+
+window.logReadingPages = async () => {
+    const quickInput = document.getElementById('readingQuickPagesInput');
+    if (!quickInput) return;
+    const pages = parseInt(quickInput.value);
+    if (!pages || pages < 1) return;
+    
+    if (!todayData.reading) todayData.reading = { pagesRead: 0 };
+    todayData.reading.pagesRead = (todayData.reading.pagesRead || 0) + pages;
+    
+    await saveTodayData({ reading: todayData.reading });
+    quickInput.value = '';
+    
+    showToast(`📝 Logged ${pages} pages!`);
+    await renderReadingPage();
+    await renderDashboard();
+};
+
+window.setReadingPages = async () => {
+    const setInput = document.getElementById('readingSetPagesInput');
+    if (!setInput) return;
+    const pages = parseInt(setInput.value);
+    if (isNaN(pages) || pages < 0) return;
+    
+    if (!todayData.reading) todayData.reading = { pagesRead: 0 };
+    todayData.reading.pagesRead = pages;
+    
+    await saveTodayData({ reading: todayData.reading });
+    setInput.value = '';
+    
+    showToast(`⚙️ Today's reading set to ${pages} pages`);
+    await renderReadingPage();
+    await renderDashboard();
+};
+
+window.resetReadingPages = async () => {
+    if (!todayData.reading) todayData.reading = { pagesRead: 0 };
+    todayData.reading.pagesRead = 0;
+    await saveTodayData({ reading: todayData.reading });
+    showToast(`🔄 Today's reading reset to 0`);
+    await renderReadingPage();
+    await renderDashboard();
+};
+
+window.resetReadingLast30Days = async () => {
+    if (!confirm('Are you sure you want to reset all reading history for the last 30 days? This cannot be undone.')) return;
+    
+    const last30 = await getLastNDays(30);
+    for (let d of last30) {
+        if (d.reading && d.reading.pagesRead > 0) {
+            const key = d.date;
+            const dataStr = localStorage.getItem(`lifeos_data_${key}`);
+            if (dataStr) {
+                const parsed = JSON.parse(dataStr);
+                if (parsed.reading) {
+                    parsed.reading.pagesRead = 0;
+                    localStorage.setItem(`lifeos_data_${key}`, JSON.stringify(parsed));
+                }
+            }
+        }
+    }
+    
+    if (todayData.reading) todayData.reading.pagesRead = 0;
+    await saveTodayData({ reading: todayData.reading });
+    
+    showToast(`🗑️ Last 30 days reading history reset`);
+    await renderReadingPage();
+    await renderDashboard();
+};
 
 window.addBook = async () => {
     const title = document.getElementById('newBookName').value.trim();
@@ -1842,18 +2076,18 @@ async function renderFitnessPage() {
 
     // Update UI Metrics
     const safeSetText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    
+
     safeSetText('fitHeightDisplay', metrics.height || '--');
     safeSetText('fitWeightCurrent', metrics.weight || '--');
     safeSetText('fitBmiValue', metrics.bmi || '0.0');
     safeSetText('fitBodyFatDisplay', metrics.bodyFat || '0.0');
     safeSetText('fitBmrDisplay', metrics.tdee || '0');
-    
+
     // BMI Category & Needle
     const bmi = parseFloat(metrics.bmi) || 0;
     const catEl = document.getElementById('fitBmiCategory');
     const needle = document.getElementById('fitBmiNeedle');
-    
+
     if (catEl) {
         if (bmi < 18.5) catEl.textContent = 'Underweight';
         else if (bmi < 25) catEl.textContent = 'Normal';
@@ -1863,10 +2097,10 @@ async function renderFitnessPage() {
 
     if (needle) {
         let pct = 0;
-        if (bmi < 18.5) pct = (bmi / 18.5) * 18.5; 
-        else if (bmi < 25) pct = 18.5 + ((bmi - 18.5) / 6.5) * 31.5; 
-        else if (bmi < 30) pct = 50 + ((bmi - 25) / 5) * 25; 
-        else pct = 75 + ((bmi - 30) / 10) * 25; 
+        if (bmi < 18.5) pct = (bmi / 18.5) * 18.5;
+        else if (bmi < 25) pct = 18.5 + ((bmi - 18.5) / 6.5) * 31.5;
+        else if (bmi < 30) pct = 50 + ((bmi - 25) / 5) * 25;
+        else pct = 75 + ((bmi - 30) / 10) * 25;
         needle.style.left = `${Math.min(100, Math.max(0, pct))}%`;
     }
 
@@ -1875,19 +2109,19 @@ async function renderFitnessPage() {
     const fatBar = document.getElementById('fitCompFat');
     const leanKg = document.getElementById('fitCompLeanKg');
     const fatKg = document.getElementById('fitCompFatKg');
-    
+
     if (leanBar && fatBar && metrics.bodyFat > 0) {
         const bf = parseFloat(metrics.bodyFat) || 0;
         fatBar.style.width = `${bf}%`;
         leanBar.style.width = `${100 - bf}%`;
-        
+
         const fatMass = (metrics.weight * bf) / 100;
         if (leanKg) leanKg.textContent = `${(metrics.weight - fatMass).toFixed(1)} kg`;
         if (fatKg) fatKg.textContent = `${fatMass.toFixed(1)} kg`;
     }
 
     // Caloric Needs
-    safeSetText('fitCalBmr', metrics.bmr || '--'); 
+    safeSetText('fitCalBmr', metrics.bmr || '--');
     safeSetText('fitCalMaintain', metrics.tdee || '--');
     safeSetText('fitCalCut', Math.round(metrics.tdee - 500) || '--');
     safeSetText('fitCalBulk', Math.round(metrics.tdee + 300) || '--');
@@ -1921,14 +2155,14 @@ async function renderFitnessPage() {
     const weekWorkouts = last30.slice(0, 7).filter(d => d.fitness?.done).length;
     const monthWorkouts = last30.filter(d => d.fitness?.done).length;
     const totalMins = last30.reduce((sum, d) => sum + (d.fitness?.duration || 0), 0);
-    
+
     safeSetText('weekWorkouts', weekWorkouts);
     safeSetText('weekSessions', `${weekWorkouts} sessions`);
     safeSetText('monthWorkouts', monthWorkouts);
     safeSetText('monthSessions', `${monthWorkouts} sessions`);
     safeSetText('totalFitnessTime', totalMins);
     safeSetText('fitWeekBadge', `${weekWorkouts} SESSIONS`);
-    
+
     // Streak
     let streak = 0;
     for (const d of last30) {
@@ -1938,22 +2172,68 @@ async function renderFitnessPage() {
     safeSetText('fitnessStreak', streak);
 
     // Workout Goal
-    const weekGoal = 5;
+    const fitnessGoalObj = (userProfile?.weeklyGoals || []).find(g => g.source === 'fitness_days' || g.source === 'fitness_sessions' || g.category === 'fitness');
+    const weekGoal = fitnessGoalObj ? fitnessGoalObj.target : 5;
+    
     const goalPct = Math.min(100, Math.round((weekWorkouts / weekGoal) * 100));
     const goalBar = document.getElementById('fitnessGoalBar');
     if (goalBar) goalBar.style.width = `${goalPct}%`;
     safeSetText('fitnessGoalText', `${weekWorkouts} / ${weekGoal} days`);
 
+    // Planned Workout Suggestion
+    const f = todayData.fitness || {};
+    const suggestionEl = document.getElementById('fitnessSuggestion');
+    if (suggestionEl) {
+        if (f.workouts && f.workouts.length > 0) {
+            suggestionEl.innerHTML = f.workouts.map(w => {
+                const title = w.routine ? `${w.type.toUpperCase()} - ${w.routine}` : w.type.toUpperCase();
+                if (w.done) {
+                    return `
+                        <div style="display:flex; align-items:center; gap:10px; background:rgba(16, 185, 129, 0.1); padding:10px 15px; border-radius:12px; border:1px solid rgba(16, 185, 129, 0.2); margin-bottom: 8px;">
+                            <div style="font-size:20px; cursor:pointer;" onclick="toggleFitnessDone('${w.id}')">✅</div>
+                            <div style="flex:1;">
+                                <div style="font-weight:700; color:var(--success); font-size:14px;">Completed!</div>
+                                <div style="font-size:12px; color:var(--text-muted);">${title} • ${w.duration}m</div>
+                            </div>
+                            <button onclick="deleteWorkout('${w.id}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:16px;">🗑</button>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); transition:all 0.2s; margin-bottom: 8px;">
+                            <div style="flex:1; cursor:pointer;" onclick="toggleFitnessDone('${w.id}')">
+                                <div style="font-weight:700; color:var(--text); font-size:14px;">Planned: ${title}</div>
+                                <div style="font-size:12px; color:var(--text-muted);">${w.duration}m scheduled</div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <div class="checkbox-box" style="width:20px;height:20px;border:2px solid var(--text-muted);border-radius:4px;cursor:pointer;" onclick="toggleFitnessDone('${w.id}')"></div>
+                                <button onclick="deleteWorkout('${w.id}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:16px;">🗑</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            }).join('');
+        } else {
+            suggestionEl.innerHTML = `<div style="font-size:13px; color:var(--text-muted);">No workout planned for today. Click '+ Log Workout' to set your plan.</div>`;
+        }
+    }
+
     // Type Breakdown
     const typeCounts = { running: 0, football: 0, gym: 0, padel: 0, other: 0 };
-    last30.forEach(d => { 
-        if (d.fitness?.done) {
+    last30.forEach(d => {
+        if (d.fitness?.workouts && d.fitness.workouts.length > 0) {
+            d.fitness.workouts.filter(w => w.done).forEach(w => {
+                const t = w.type;
+                if (typeCounts[t] !== undefined) typeCounts[t]++;
+                else typeCounts['other']++;
+            });
+        } else if (d.fitness?.done) {
             const t = d.fitness.type;
             if (typeCounts[t] !== undefined) typeCounts[t]++;
             else typeCounts['other']++;
         }
     });
-    
+
     const typeWrap = document.getElementById('fitnessTypeBreakdown');
     if (typeWrap) {
         const typeMeta = {
@@ -1974,28 +2254,55 @@ async function renderFitnessPage() {
 
     // Weight Chart
     renderWeightChart(last30);
+    
+    // Weekly Chart
+    renderFitnessWeekChart(last30);
 
-    // Initial Rest Timer Display
-    updateRestUI();
 
     // Workout Log
     const logEl = document.getElementById('workoutLog');
-    const logs = last30.filter(d => d.fitness?.done).slice(0, 10);
-    safeSetText('fitLogCount', `${logs.length} ENTRIES`);
+    
+    let allWorkouts = [];
+    last30.forEach(d => {
+        if (d.fitness?.workouts && d.fitness.workouts.length > 0) {
+            const completed = d.fitness.workouts.filter(w => w.done);
+            completed.forEach(w => {
+                allWorkouts.push({
+                    date: d.date === todayStr() ? 'Today' : d.date,
+                    type: w.type,
+                    routine: w.routine,
+                    notes: w.notes,
+                    duration: w.duration
+                });
+            });
+        } else if (d.fitness?.done) {
+            allWorkouts.push({
+                date: d.date === todayStr() ? 'Today' : d.date,
+                type: d.fitness.type,
+                routine: d.fitness.routine,
+                notes: d.fitness.notes,
+                duration: d.fitness.duration
+            });
+        }
+    });
+
+    const logs = allWorkouts.slice(0, 10);
+    safeSetText('fitLogCount', `${allWorkouts.length} ENTRIES`);
+    
     if (logEl) {
         if (logs.length === 0) {
             logEl.innerHTML = '<div class="empty-state">No workouts logged yet.</div>';
         } else {
             const icons = { running: '🏃', football: '⚽', gym: '🏋️', padel: '🎾', other: '💪' };
-            logEl.innerHTML = logs.map(d => `
+            logEl.innerHTML = logs.map(w => `
                 <div class="fitness-log-item">
-                    <div class="fitness-log-icon">${icons[d.fitness.type] || '💪'}</div>
+                    <div class="fitness-log-icon">${icons[w.type] || '💪'}</div>
                     <div style="flex:1;">
-                        <div style="font-weight:700; font-size:14px;">${d.date === todayStr() ? 'Today' : d.date}</div>
-                        <div style="font-size:12px; color:var(--text-muted);">${d.fitness.routine ? `<span style="color:var(--fit-primary)">[${d.fitness.routine}]</span> ` : ''}${d.fitness.notes || 'No notes'}</div>
+                        <div style="font-weight:700; font-size:14px;">${w.date}</div>
+                        <div style="font-size:12px; color:var(--text-muted);">${w.routine ? `<span style="color:var(--fit-primary)">[${w.routine}]</span> ` : ''}${w.notes || 'No notes'}</div>
                     </div>
                     <div style="text-align:right;">
-                        <div style="font-family:\'Bebas Neue\'; font-size:20px; color:var(--fit-primary);">${d.fitness.duration}m</div>
+                        <div style="font-family:\'Bebas Neue\'; font-size:20px; color:var(--fit-primary);">${w.duration}m</div>
                     </div>
                 </div>
             `).join('');
@@ -2023,6 +2330,46 @@ function renderWeightChart(days) {
     }).join('');
 }
 
+function renderFitnessWeekChart(days) {
+    const chartEl = document.getElementById('fitnessWeekChart');
+    if (!chartEl) return;
+    const week = days.slice(0, 7).reverse();
+    const durations = week.map(d => {
+        if (d.fitness?.workouts && d.fitness.workouts.length > 0) {
+            return d.fitness.workouts.reduce((sum, w) => sum + (w.done ? (parseInt(w.duration)||0) : 0), 0);
+        }
+        return d.fitness?.done ? (parseInt(d.fitness?.duration) || 0) : 0;
+    });
+    
+    // Default max duration to 60 if all are 0 or less, to ensure bars look proportionate
+    const maxDur = Math.max(...durations, 60); 
+    
+    chartEl.style.height = '140px';
+    chartEl.style.display = 'flex';
+    chartEl.style.alignItems = 'flex-end';
+    chartEl.style.gap = '8px';
+    chartEl.style.paddingTop = '15px';
+    chartEl.style.width = '100%';
+
+    chartEl.innerHTML = week.map((d, i) => {
+        const dur = durations[i];
+        const h = dur > 0 ? (dur / maxDur) * 100 : 8; // min 8% for visibility
+        const dayName = new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' });
+        const isToday = d.date === todayStr();
+        const color = dur > 0 ? 'var(--fit-primary)' : 'rgba(255,255,255,0.05)';
+        const fontWeight = isToday ? '700' : '400';
+        const fontColor = isToday ? 'var(--text)' : 'var(--text-muted)';
+        
+        return `
+            <div style="flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; position:relative;" title="${d.date}: ${dur} min">
+                <div style="font-size:10px; color:${fontColor}; font-weight:700; margin-bottom:4px; opacity:${dur > 0 ? 1 : 0};">${dur}m</div>
+                <div style="width:100%; max-width:40px; height:${h}%; background:${color}; border-radius:6px 6px 0 0; transition:height 0.5s;"></div>
+                <div style="font-size:11px; color:${fontColor}; font-weight:${fontWeight}; margin-top:8px;">${dayName}</div>
+            </div>
+        `;
+    }).join('');
+}
+
 window.saveBodyMetrics = async () => {
     const gender = document.getElementById('fitGenderSelect').value;
     const height = parseFloat(document.getElementById('fitHeightInput').value) || 0;
@@ -2045,11 +2392,11 @@ window.saveBodyMetrics = async () => {
     const calculatedBF = calculateBodyFat(gender, height, waist, neck, hip);
     const bodyFat = !isNaN(manualBF) ? manualBF : calculatedBF;
 
-    const metrics = { 
-        height, weight, age, gender, activity, waist, neck, hip, 
-        bodyFat, bmi, tdee, bmr: Math.round(bmr) 
+    const metrics = {
+        height, weight, age, gender, activity, waist, neck, hip,
+        bodyFat, bmi, tdee, bmr: Math.round(bmr)
     };
-    
+
     todayData.fitness.metrics = metrics;
     userProfile.fitness = userProfile.fitness || {};
     userProfile.fitness.metrics = metrics;
@@ -2067,7 +2414,7 @@ window.logBodyWeight = () => {
     const history = userProfile.fitness?.weightHistory || [];
     const logEl = document.getElementById('weightHistoryLog');
     if (logEl) {
-        logEl.innerHTML = history.length === 0 
+        logEl.innerHTML = history.length === 0
             ? '<div class="empty-state">No weight history found.</div>'
             : history.slice().reverse().map(entry => `
                 <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05);">
@@ -2079,12 +2426,50 @@ window.logBodyWeight = () => {
     openModal('weightHistoryModal');
 };
 
+window.toggleFitnessDone = async (id) => {
+    ensureFitnessDefaults(todayData);
+    const w = todayData.fitness.workouts.find(x => x.id === id);
+    if (!w) return;
+
+    w.done = !w.done;
+    
+    syncFitnessSummary(todayData.fitness);
+
+    if (w.done) {
+        // Auto-log weight to history if metrics exist
+        const weight = todayData.fitness.metrics?.weight;
+        if (weight) {
+            const history = userProfile.fitness?.weightHistory || [];
+            if (!history.find(h => h.date === activeDate)) {
+                history.push({ date: activeDate, weight: weight });
+                if (!userProfile.fitness) userProfile.fitness = {};
+                userProfile.fitness.weightHistory = history.slice(-30);
+                await saveUserData({ fitness: userProfile.fitness });
+            }
+        }
+        showToast('🎉 Workout marked as completed!');
+    }
+
+    await saveTodayData({ fitness: todayData.fitness });
+    renderFitnessPage();
+    renderDashboard();
+};
+
+window.deleteWorkout = async (id) => {
+    if (!confirm('Remove this workout?')) return;
+    ensureFitnessDefaults(todayData);
+    todayData.fitness.workouts = todayData.fitness.workouts.filter(w => w.id !== id);
+    syncFitnessSummary(todayData.fitness);
+    await saveTodayData({ fitness: todayData.fitness });
+    renderFitnessPage();
+    renderDashboard();
+};
+
 window.openLogWorkout = () => {
-    const f = todayData.fitness || {};
-    document.getElementById('workoutType').value = f.type || 'gym';
-    document.getElementById('workoutDuration').value = f.duration || '';
-    document.getElementById('workoutNotes').value = f.notes || '';
-    document.getElementById('gymRoutine').value = f.routine || '';
+    document.getElementById('workoutType').value = 'gym';
+    document.getElementById('workoutDuration').value = '';
+    document.getElementById('workoutNotes').value = '';
+    document.getElementById('gymRoutine').value = '';
     window.toggleGymRoutine();
     openModal('logWorkoutModal');
 };
@@ -2103,29 +2488,24 @@ window.logWorkout = async () => {
 
     if (!duration) { showToast('Enter duration', 'error'); return; }
 
-    todayData.fitness.done = true;
-    todayData.fitness.type = type;
-    todayData.fitness.duration = duration;
-    todayData.fitness.notes = notes;
-    todayData.fitness.routine = routine;
-
-    // Auto-log weight to history if metrics exist
-    const weight = todayData.fitness.metrics?.weight;
-    if (weight) {
-        const history = userProfile.fitness?.weightHistory || [];
-        if (!history.find(h => h.date === activeDate)) {
-            history.push({ date: activeDate, weight: weight });
-            if (!userProfile.fitness) userProfile.fitness = {};
-            userProfile.fitness.weightHistory = history.slice(-30);
-            await saveUserData({ fitness: userProfile.fitness });
-        }
-    }
+    ensureFitnessDefaults(todayData);
+    
+    todayData.fitness.workouts.push({
+        id: Date.now().toString(),
+        type: type,
+        duration: duration,
+        notes: notes,
+        routine: routine,
+        done: false
+    });
+    
+    syncFitnessSummary(todayData.fitness);
 
     await saveTodayData({ fitness: todayData.fitness });
     closeModal('logWorkoutModal');
     renderFitnessPage();
     renderDashboard();
-    showToast('💪 Workout logged!');
+    showToast('💪 Workout planned for today!');
 };
 
 // ─── Workout Presets ───
@@ -2137,79 +2517,6 @@ window.applyWorkoutPreset = (type, routine, duration) => {
     window.toggleGymRoutine();
 };
 
-// ─── Rest Timer Logic ───
-let restTimerInterval = null;
-let restSeconds = 90;
-let totalRestSeconds = 90;
-let restRunning = false;
-
-window.setRestTimer = (seconds) => {
-    clearInterval(restTimerInterval);
-    restRunning = false;
-    restSeconds = seconds;
-    totalRestSeconds = seconds;
-    
-    // Update active preset UI
-    document.querySelectorAll('.fit-rest__preset').forEach(btn => {
-        btn.classList.toggle('active', parseInt(btn.getAttribute('onclick').match(/\d+/)[0]) === seconds);
-    });
-    
-    const btn = document.getElementById('restTimerBtn');
-    if (btn) btn.textContent = '▶ Start';
-    
-    updateRestUI();
-};
-
-window.toggleRestTimer = () => {
-    if (restRunning) {
-        clearInterval(restTimerInterval);
-        restRunning = false;
-        const btn = document.getElementById('restTimerBtn');
-        if (btn) btn.textContent = '▶ Start';
-    } else {
-        if (restSeconds <= 0) restSeconds = totalRestSeconds;
-        restRunning = true;
-        const btn = document.getElementById('restTimerBtn');
-        if (btn) btn.textContent = '⏸ Pause';
-        
-        restTimerInterval = setInterval(() => {
-            restSeconds--;
-            if (restSeconds <= 0) {
-                clearInterval(restTimerInterval);
-                restRunning = false;
-                restSeconds = 0;
-                if (btn) btn.textContent = '▶ Start';
-                new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(() => {});
-                showToast('⏰ Rest time over!', 'success');
-            }
-            updateRestUI();
-        }, 1000);
-    }
-};
-
-window.resetRestTimer = () => {
-    clearInterval(restTimerInterval);
-    restRunning = false;
-    restSeconds = totalRestSeconds;
-    const btn = document.getElementById('restTimerBtn');
-    if (btn) btn.textContent = '▶ Start';
-    updateRestUI();
-};
-
-function updateRestUI() {
-    const display = document.getElementById('restTimerDisplay');
-    const bar = document.getElementById('restTimerBar');
-    if (!display) return;
-
-    const mins = Math.floor(restSeconds / 60);
-    const secs = restSeconds % 60;
-    display.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-    
-    if (bar) {
-        const pct = totalRestSeconds > 0 ? (restSeconds / totalRestSeconds) * 100 : 0;
-        bar.style.width = `${pct}%`;
-    }
-}
 
 // ─── LEARNING: KNOWLEDGE HUB ENGINE ────────────────
 async function renderLearningPage() {
@@ -2222,7 +2529,7 @@ async function renderLearningPage() {
     const metrics = getWorkMetrics(todayData);
     const courseMetrics = metrics.courseMetrics || [];
     const tasks = todayData.work?.tasks || [];
-    
+
     // Render courses list with enhanced cards
     const container = document.getElementById('coursesList');
     if (container) {
@@ -2237,7 +2544,7 @@ async function renderLearningPage() {
                 const totalH = c.totalDurationHours || 0;
                 const consumedH = c.totalTimeSpentHours || 0;
                 const remainH = c.remainingHours || 0;
-                
+
                 return `
                 <div class="card aurora-border" style="margin-bottom:14px; padding:20px; ${isComplete ? 'border-color:var(--success, #10b981);' : ''}">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -2281,14 +2588,14 @@ async function renderLearningPage() {
     const sessionsEl = document.getElementById('learningTodaySessions');
     const badgeEl = document.getElementById('learningTodayBadge');
     if (badgeEl) badgeEl.textContent = `${sessions.length} session${sessions.length !== 1 ? 's' : ''}`;
-    
+
     if (sessionsEl) {
         const todayMins = sessions.reduce((s, x) => s + (x.minutes || 0), 0);
         if (sessions.length === 0) {
             sessionsEl.innerHTML = `<div class="empty-state" style="padding:16px;"><div class="empty-state-text">No study sessions logged today. Start learning!</div></div>`;
         } else {
             sessionsEl.innerHTML = `
-                <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Total today: <strong style="color:var(--learning,#0ea5e9);">${Math.floor(todayMins/60)}h ${todayMins%60}m</strong></div>
+                <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Total today: <strong style="color:var(--learning,#0ea5e9);">${Math.floor(todayMins / 60)}h ${todayMins % 60}m</strong></div>
                 ${sessions.map((s, i) => `
                 <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
                     <span>📖</span>
@@ -2307,13 +2614,13 @@ async function renderLearningPage() {
     const completedCourses = courseMetrics.filter(c => c.calculatedProgress >= 100).length;
     const totalHours = courseMetrics.reduce((sum, c) => sum + (c.totalTimeSpentHours || 0), 0);
     const overallProgress = metrics.courseProgress || 0;
-    
-    const setTxt = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+
+    const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
     setTxt('learningActiveCourses', activeCourses);
     setTxt('learningCompletedCourses', completedCourses);
     setTxt('learningTotalHours', Math.round(totalHours * 10) / 10);
     setTxt('learningOverallProgress', `${overallProgress}%`);
-    
+
     // Smart Insight
     const insightEl = document.getElementById('learningCourseInsight');
     if (insightEl) {
@@ -2322,7 +2629,7 @@ async function renderLearningPage() {
         } else if (activeCourses > 0) {
             const mostProgressed = courseMetrics
                 .filter(c => c.calculatedProgress < 100)
-                .sort((a,b) => b.calculatedProgress - a.calculatedProgress)[0];
+                .sort((a, b) => b.calculatedProgress - a.calculatedProgress)[0];
             if (mostProgressed) {
                 const remaining = mostProgressed.remainingHours;
                 insightEl.innerHTML = `Focus on <strong style="color:var(--aurora-blue)">${sanitizeInput(mostProgressed.name)}</strong> (${mostProgressed.calculatedProgress}% done${remaining > 0 ? `, ~${remaining}h left` : ''}).`;
@@ -2350,23 +2657,23 @@ window.openLogSession = (courseId) => {
     ensureWorkLibraryDefaults();
     const course = getCoursesCatalog().find(c => c.id === courseId);
     if (!course) return showToast('Course not found', 'error');
-    
+
     document.getElementById('logSessionCourseId').value = courseId;
     document.getElementById('logSessionCourseName').textContent = '📚 ' + course.name;
     document.getElementById('logSessionHours').value = '0';
     document.getElementById('logSessionMinutes').value = '30';
     document.getElementById('logSessionTopic').value = '';
-    
+
     const totalH = convertToHours(course.duration, course.durationUnit || 'hours');
     const consumed = course.consumedHours || 0;
     const remaining = Math.max(0, totalH - consumed);
     const remEl = document.getElementById('logSessionRemaining');
     if (remEl) {
-        remEl.textContent = totalH > 0 
-            ? `Progress: ${consumed}h / ${totalH}h (${Math.round(consumed/totalH*100)}%) — ${remaining.toFixed(1)}h remaining`
+        remEl.textContent = totalH > 0
+            ? `Progress: ${consumed}h / ${totalH}h (${Math.round(consumed / totalH * 100)}%) — ${remaining.toFixed(1)}h remaining`
             : `${consumed}h studied so far`;
     }
-    
+
     openModal('logSessionModal');
 };
 
@@ -2376,19 +2683,19 @@ window.logStudySession = async () => {
         const hours = parseInt(document.getElementById('logSessionHours').value) || 0;
         const minutes = parseInt(document.getElementById('logSessionMinutes').value) || 0;
         const topic = sanitizeInput(document.getElementById('logSessionTopic').value || '');
-        
+
         const totalMinutes = hours * 60 + minutes;
         if (totalMinutes <= 0) throw new Error('⚠️ Enter study time');
         if (totalMinutes > 720) throw new Error('⚠️ Maximum 12 hours per session');
-        
+
         ensureWorkLibraryDefaults();
         const course = getCoursesCatalog().find(c => c.id === courseId);
         if (!course) throw new Error('Course not found');
-        
+
         // Add consumed hours to course
         const hoursToAdd = totalMinutes / 60;
         course.consumedHours = Math.round(((course.consumedHours || 0) + hoursToAdd) * 100) / 100;
-        
+
         // Log session to today's learning data
         if (!todayData.learning) todayData.learning = {};
         if (!Array.isArray(todayData.learning.sessions)) todayData.learning.sessions = [];
@@ -2400,10 +2707,10 @@ window.logStudySession = async () => {
             ts: Date.now()
         });
         todayData.learning.done = true;
-        
+
         await saveUserData({ workLibrary: userProfile.workLibrary });
         await saveTodayData({ learning: todayData.learning });
-        
+
         closeModal('logSessionModal');
         renderLearningPage();
         await renderDashboard();
@@ -2416,7 +2723,7 @@ window.logStudySession = async () => {
 window.deleteStudySession = async (index) => {
     if (!todayData.learning?.sessions?.[index]) return;
     const session = todayData.learning.sessions[index];
-    
+
     // Remove consumed hours from course
     if (session.courseId) {
         ensureWorkLibraryDefaults();
@@ -2427,7 +2734,7 @@ window.deleteStudySession = async (index) => {
             await saveUserData({ workLibrary: userProfile.workLibrary });
         }
     }
-    
+
     todayData.learning.sessions.splice(index, 1);
     if (todayData.learning.sessions.length === 0) todayData.learning.done = false;
     await saveTodayData({ learning: todayData.learning });
@@ -3365,16 +3672,27 @@ function computeGoalProgress(daysData, goal) {
             case 'fitness_minutes':
                 value += d.fitness?.duration || 0;
                 break;
+            case 'fitness_sessions_type':
+            case 'fitness_minutes_type': {
+                const isMin = g.source === 'fitness_minutes_type';
+                if (Array.isArray(d.fitness?.workouts)) {
+                    const match = (g.exerciseName || '').toLowerCase().trim();
+                    const related = d.fitness.workouts.filter(w => w.done && 
+                        (w.type.toLowerCase().includes(match) || (w.routine||'').toLowerCase().includes(match) || (w.notes||'').toLowerCase().includes(match))
+                    );
+                    if (isMin) {
+                        value += related.reduce((s, w) => s + (parseInt(w.duration)||0), 0);
+                    } else {
+                        value += related.length;
+                    }
+                }
+                break;
+            }
             case 'fitness_reps_exercise':
-                // Sum reps from workouts array matching exercise name
                 if (Array.isArray(d.fitness?.workouts)) {
                     value += d.fitness.workouts
-                        .filter(w => (w.exercise || w.name || '').toLowerCase().includes(exerciseName))
-                        .reduce((s, w) => s + (w.reps || 0), 0);
-                }
-                // Also check top-level fitness reps if exercise matches
-                if (d.fitness?.reps && (d.fitness.exercise || '').toLowerCase().includes(exerciseName)) {
-                    value += d.fitness.reps;
+                        .filter(w => w.done && (w.exercise || w.routine || w.type || '').toLowerCase().includes(exerciseName))
+                        .reduce((s, w) => s + (parseInt(w.reps) || 0), 0);
                 }
                 break;
             case 'learning_sessions':
@@ -3478,7 +3796,7 @@ function renderGoalCard(g, i, type) {
       <div class="goal-card__update">
         ${isManual ? `<input type="number" id="goalUpd_${type}_${i}" placeholder="Add" min="0">
           <button class="btn btn-ghost btn-sm" onclick="quickUpdateGoal('${type}', ${i})">Update</button>` :
-          `<span class="goal-card__source-badge">${sourceLabel}</span>`}
+            `<span class="goal-card__source-badge">${sourceLabel}</span>`}
       </div>
     </div>`;
 }
@@ -3603,10 +3921,11 @@ window.addGoalFromModal = async () => {
     const source = document.getElementById('newGoalSource').value;
     const target = parseInt(document.getElementById('newGoalTarget').value) || 0;
     const unit = document.getElementById('newGoalUnit')?.value?.trim() || '';
+    const exerciseName = document.getElementById('newGoalSourceExercise')?.value?.trim() || '';
     if (!title || !target) return showToast('Please fill in all fields', 'error');
 
     ensureWeeklyGoalsDefaults();
-    const goal = { title, category, source, target, current: 0, unit, createdAt: Date.now(), updatedAt: Date.now() };
+    const goal = { title, category, source, target, current: 0, unit, exerciseName, createdAt: Date.now(), updatedAt: Date.now() };
 
     if (type === 'custom') {
         const durationType = document.getElementById('newGoalDuration').value;
@@ -3638,7 +3957,9 @@ window.openEditGoalModal = (type, i) => {
     document.getElementById('editGoalName').value = g.title || '';
     document.getElementById('editGoalCategory').value = g.category || 'personal';
     document.getElementById('editGoalSource').value = g.source || 'manual';
+    document.getElementById('editGoalSourceExercise').value = g.exerciseName || '';
     document.getElementById('editGoalTarget').value = g.target || 0;
+    handleGoalSourceChange('edit');
     openModal('editGoalModal');
 };
 
@@ -3651,6 +3972,7 @@ window.updateGoalFromModal = async () => {
     goals[i].title = sanitizeInput(document.getElementById('editGoalName').value.trim());
     goals[i].category = document.getElementById('editGoalCategory').value;
     goals[i].source = document.getElementById('editGoalSource').value;
+    goals[i].exerciseName = document.getElementById('editGoalSourceExercise').value.trim();
     goals[i].target = parseInt(document.getElementById('editGoalTarget').value) || goals[i].target;
     goals[i].updatedAt = Date.now();
     await saveUserData(type === 'custom' ? { customGoals: userProfile.customGoals } : { weeklyGoals: userProfile.weeklyGoals });
@@ -3710,7 +4032,8 @@ window.toggleCustomDays = () => {
 window.handleGoalSourceChange = (prefix) => {
     const src = document.getElementById(`${prefix === 'new' ? 'new' : 'edit'}GoalSource`)?.value || '';
     const exGroup = document.getElementById(`${prefix === 'new' ? 'new' : 'edit'}GoalSourceExerciseGroup`);
-    if (exGroup) exGroup.style.display = src === 'fitness_reps_exercise' ? '' : 'none';
+    const needsExercise = src === 'fitness_reps_exercise' || src === 'fitness_sessions_type' || src === 'fitness_minutes_type';
+    if (exGroup) exGroup.style.display = needsExercise ? '' : 'none';
 };
 
 window.setWeeklyGoalsView = (view) => {
@@ -3797,7 +4120,7 @@ window.saveSleepIntelligence = async () => {
         if (screen > 60) deepPct -= 3;
         if (heavyMeal) deepPct -= 2;
         if (pain > 3) deepPct -= 5;
-        
+
         // REM Sleep Modifiers
         if (quality >= 8) remPct += 5;
         if (stress > 6) remPct -= 5;
@@ -3808,7 +4131,7 @@ window.saveSleepIntelligence = async () => {
         // Bounding
         deepPct = Math.max(5, Math.min(30, deepPct));
         remPct = Math.max(5, Math.min(35, remPct));
-        
+
         const deepMin = Math.round((deepPct / 100) * totalDuration);
         const remMin = Math.round((remPct / 100) * totalDuration);
         const lightMin = Math.max(0, totalDuration - deepMin - remMin - (wakeups * 5));
@@ -3822,7 +4145,7 @@ window.saveSleepIntelligence = async () => {
         score -= (stress * 1.5);
         if (illness === 'severe') score -= 15;
         if (hydration >= 2) score += 5;
-        
+
         score = Math.max(1, Math.min(100, Math.round(score)));
 
         const efficiency = Math.max(1, Math.min(100, Math.round((totalDuration / (totalDuration + latency + (wakeups * 5))) * 100)));
@@ -3852,10 +4175,10 @@ window.renderSleepPage = () => {
     if (!todayData.sleep || !todayData.sleep.estimations) return;
     const data = todayData.sleep;
     const est = data.estimations;
-    
+
     // Core Stats
     safeSetText('sleepScoreVal', est.score);
-    safeSetText('sleepAvgDuration', `${Math.floor(est.totalDuration/60)}h ${est.totalDuration%60}m`);
+    safeSetText('sleepAvgDuration', `${Math.floor(est.totalDuration / 60)}h ${est.totalDuration % 60}m`);
     safeSetText('sleepAvgQuality', `${data.quality}/10`);
     safeSetText('sleepEfficiency', `${est.efficiency}%`);
     safeSetText('sleepConsistency', data.energy >= 7 ? 'High' : 'Moderate');
@@ -3866,7 +4189,7 @@ window.renderSleepPage = () => {
         let color = 'var(--danger)';
         if (est.score >= 80) color = 'var(--success)';
         else if (est.score >= 60) color = 'var(--warning)';
-        
+
         ring.style.stroke = color;
         const dashOffset = 565.48 - (565.48 * (est.score / 100));
         ring.style.strokeDashoffset = dashOffset;
@@ -3875,8 +4198,8 @@ window.renderSleepPage = () => {
     // AI Insights
     safeSetText('sleepStatus', est.score >= 80 ? 'OPTIMIZED' : est.score >= 60 ? 'RECOVERING' : 'COMPROMISED');
     safeSetText('sleepGreeting', est.score >= 80 ? 'Peak Readiness Achieved' : 'Moderate Recovery Sensed');
-    
-    let insight = `Your AI-estimated Sleep Debt is ${Math.floor(est.sleepDebt/60)}h ${est.sleepDebt%60}m. `;
+
+    let insight = `Your AI-estimated Sleep Debt is ${Math.floor(est.sleepDebt / 60)}h ${est.sleepDebt % 60}m. `;
     if (data.screen > 60) insight += "High screen time likely reduced your Deep Sleep. ";
     if (data.stress > 6) insight += "Elevated stress is impacting your REM cycles. ";
     if (data.heavyMeal) insight += "Heavy meals before bed lower sleep efficiency. ";
@@ -3887,16 +4210,16 @@ window.renderSleepPage = () => {
     const stagesList = document.getElementById('sleepStagesList');
     if (stagesList) {
         stagesList.innerHTML = `
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Deep Sleep</span> <b>${Math.floor(est.deepMin/60)}h ${est.deepMin%60}m</b></div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>REM Sleep</span> <b>${Math.floor(est.remMin/60)}h ${est.remMin%60}m</b></div>
-            <div style="display:flex; justify-content:space-between;"><span>Light Sleep</span> <b>${Math.floor(est.lightMin/60)}h ${est.lightMin%60}m</b></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Deep Sleep</span> <b>${Math.floor(est.deepMin / 60)}h ${est.deepMin % 60}m</b></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>REM Sleep</span> <b>${Math.floor(est.remMin / 60)}h ${est.remMin % 60}m</b></div>
+            <div style="display:flex; justify-content:space-between;"><span>Light Sleep</span> <b>${Math.floor(est.lightMin / 60)}h ${est.lightMin % 60}m</b></div>
         `;
     }
 
     // Factors
     safeSetText('caffeineBodyLevel', data.caffeineAmount > 0 ? `${data.caffeineAmount} mg` : '0 mg');
     safeSetText('caffeineInsight', data.caffeineAmount > 100 ? "High caffeine intake is suppressing REM sleep." : "Caffeine levels are optimal.");
-    
+
     safeSetText('hydrationLevel', `${data.hydration || 0} L`);
     safeSetText('hydrationInsight', (data.hydration || 0) >= 2 ? "Optimal hydration supporting cardiovascular recovery." : "Low hydration may increase waking heart rate.");
 };
